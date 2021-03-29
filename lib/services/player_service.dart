@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -12,39 +11,47 @@ import 'package:just_audio/just_audio.dart';
 enum PLAY_MODE { list, random, one, no }
 
 class PlayerService extends GetxService {
+  AudioPlayer player; // 播放器实例
+  PlayerService() {
+    player?.stop();
+    player?.dispose();
+    player = AudioPlayer();
+  }
+
+  final Rx<Song> song = Rx<Song>(null); // 当前歌曲
+
   final loading = false.obs; // 歌曲加载状态
-  final canOperator = true.obs; // 是否能操作上一曲下一曲
-  final currIndex = 0.obs; // 当前歌曲索引
+
   final playMode = PLAY_MODE.random.obs; // 播放模式
+
   final totalTime = 0.0.obs; // 总时间
-  final currentTime = 0.obs; // 当前播放进度
+
+  final currentTime = 0.obs; // 已播放时间
+
   final playing = false.obs; // 播放状态
-  final songUri = "".obs; // 歌曲 uri
 
-  // 歌词
-  final lyric = Lyric().obs;
+  final playList = <Song>[].obs; // 播放列表
+  int get songCount => playList.length; // 播放列表数量
 
-  final playList = <Song>[].obs;
+  final percent = 0.0.obs; // 播放进度百分比
 
-  final player = AudioPlayer();
+  final currentLyricStr = "".obs; // 正在播放的歌词
 
-  final percent = 0.0.obs;
-
-  final currentLien = 0.obs;
-
-  final currentLyricStr = "".obs;
-
-  final nextLyricStr = "".obs;
+  final nextLyricStr = "".obs; // 下一行歌词
 
   // 是否按下进度条
   bool isTouch = false;
 
-  Song get currSong {
-    if (playList.length == 0) {
-      return null;
-    }
-    return playList[currIndex.value];
-  }
+  Lyric lyric; // 歌词对象
+
+  final currIndex = (-1).obs; // 当前歌曲索引
+
+  bool canOperator = true; // 是否能操作上一曲下一曲
+
+  int currentLien = 0; // 当前播放歌词行
+
+  // 播放模式icon
+  int modeCount = 0;
 
   IconData get modeIcon {
     switch (playMode.value) {
@@ -59,8 +66,20 @@ class PlayerService extends GetxService {
     }
   }
 
-  int modeCount = 0;
+  String get modeText {
+    switch (playMode.value) {
+      case PLAY_MODE.random:
+        return "随机播放 (${playList.length ?? 0}首歌)";
+      case PLAY_MODE.list:
+        return "顺序播放 (${playList.length ?? 0}首歌)";
+      case PLAY_MODE.one:
+        return "单曲循环";
+      default:
+        return "--";
+    }
+  }
 
+  // 修改播放模式
   changeMode() {
     modeCount++;
     switch (modeCount % 3) {
@@ -76,9 +95,6 @@ class PlayerService extends GetxService {
     }
   }
 
-  // 播放列表数量
-  int get songCount => playList.length;
-
   // 播放进度百分比
   changePercent() {
     if (totalTime.value == 0) return 0;
@@ -88,86 +104,103 @@ class PlayerService extends GetxService {
   }
 
   changeCurrentLine() {
-    if (currSong == null || lyric?.value?.lyrics == null) return null;
-    var len = lyric.value.lyrics.length;
-    var lyrics = lyric.value.lyrics;
+    if (song == null || lyric?.lyrics == null) return null;
+    var len = lyric.lyrics.length;
+    var lyrics = lyric.lyrics;
     for (int i = 0; i < len; i++) {
       var lineTime = lyrics[i];
       var nextLineTime = i == len - 1 ? lyrics[len - 1] : lyrics[i + 1];
       if (currentTime >= lineTime.time && currentTime < nextLineTime.time) {
-        currentLien.value = i;
+        currentLien = i;
         currentLyricStr.value = lyrics[i].lineLyric;
         nextLyricStr.value = lyrics[i >= len - 1 ? len - 1 : i + 1].lineLyric;
       }
     }
   }
 
+  // 控制播放
   pause() async {
-    if (currSong == null) return;
+    if (song.value == null) return;
     await player.pause();
   }
 
+  // 控制暂停
   play() async {
-    if (currSong == null) return;
+    if (song.value == null) return;
     await player.play();
   }
 
+  // 跳转到指定时间
   seekTime(int seconds) async {
-    if (currSong == null) return;
+    if (song == null) return;
     await player.seek(Duration(seconds: seconds));
   }
 
-  // 播放初始化
+  // 开始播放一首新歌的初始化工作
   playInit() async {
-    loading.value = true;
-    currentTime.value = 0;
-    songUri.value = "";
-    lyric.value = null;
     await pause();
+    loading.value = false;
+    currentTime.value = 0;
+    totalTime.value = 0;
+    percent.value = 0;
+    lyric = null;
+    nextLyricStr.value = "";
+    currentLyricStr.value = "";
+    canOperator = false;
+    print("设置canOprator FALSE");
+    currentLien = -1;
+    song.value = null;
   }
 
-  // 加载歌曲播放
-  loadPlay() async {
-    playInit();
-    if (currSong == null) return;
-    canOperator.value = false;
-    try {
-      var res = await Provider.getUri(currSong.rid.toString());
-      var lrcRes = await Provider.getLyric(currSong.rid.toString());
-      if (lrcRes.ok) {
-        lyric.value = Lyric.fromJson(lrcRes.data);
-        print(lyric.value);
-      }
-      if (res.ok) {
-        songUri.value = res.data;
-        var duration = await player.setUrl("${res.data}");
-        totalTime.value = duration.inSeconds.toDouble();
-        await player.play();
-        canOperator.value = true;
-      }
-    } catch (e) {
-      print(e);
-      Get.snackbar("title", "播放出错");
-      next();
-    }
-  }
-
-  // 加载歌曲列表并播放
-  loadListAndPlay(int index, List<Song> list) async {
-    playInit();
-    if (list.length == 0) return;
-    var song = list[index];
-    if (song == null) return;
+  // 设置播放列表数据
+  setPlayList(List<Song> list) {
+    if (list == null || list.length == 0) return;
     playList.value = list;
+  }
+
+  // 设置当前播放索引
+  setCurrentIndex([int index]) {
     currIndex.value = index;
     loadPlay();
   }
 
-  // 夏一首歌
-  next() async {
+  // 加载歌曲播放
+  loadPlay() async {
+    // 如果歌曲不为null 且 当前播放歌曲和新的索引歌曲rid相同则 return
+    if (song.value != null && song.value.rid == playList[currIndex.value].rid) {
+      return print("相同歌曲");
+    }
+    // 播放前的初始化
     await playInit();
-    if (!canOperator.value) return;
+    // 赋值当前歌曲
+    song.value = playList[currIndex.value];
+    try {
+      print("currIndex.value: $currIndex.value, rid: ${song?.value?.rid}");
+      var res = await Provider.getUri(song.value.rid.toString());
+      var lrcRes = await Provider.getLyric(song.value.rid.toString());
+      if (lrcRes.ok) {
+        lyric = Lyric.fromJson(lrcRes.data);
+      }
+      if (res.ok) {
+        var duration = await player.setUrl("${res.data}");
+        totalTime.value = duration.inSeconds.toDouble();
+        print("设置canOprator TRUE");
+        canOperator = true;
+        await player.play().catchError((e) {
+          print("捕获playError: $e");
+        });
+      }
+    } catch (e) {
+      print(e);
+      Get.snackbar("title", "播放出错");
+      next(false);
+    }
+  }
 
+  // 夏一首歌
+  next([bool check = true]) async {
+    print("${canOperator ? '能下一首' : '不能下一首'} --- $canOperator}");
+    if (check) if (!canOperator) return;
     if (playMode.value == PLAY_MODE.random) {
       randomIndex();
     } else {
@@ -184,16 +217,31 @@ class PlayerService extends GetxService {
     currIndex.value = Random().nextInt((songCount - 1) < 0 ? 0 : songCount - 1);
   }
 
+  // 跳转到某一首
+  jumpToForIndex(int index) {
+    currIndex.value = index;
+    loadPlay();
+  }
+
   // 上一首歌
   previous() async {
-    await playInit();
-    if (!canOperator.value) return;
+    if (!canOperator) return;
     if (currIndex.value == 0) {
       currIndex.value = songCount - 1;
     } else {
       currIndex.value--;
     }
     loadPlay();
+  }
+
+  // 插入一首歌曲并播放 （需要改变索引）
+  insertSongInPlayList(Song song) {
+    //TODO:插入一首歌曲并播放 （需要改变索引）
+  }
+
+  // 删除列表中的一首歌曲（需要改变索引）
+  deleteSongToPlayList(String rid) {
+    //TODO: 删除列表中的一首歌曲（需要改变索引）
   }
 
   @override
@@ -243,7 +291,6 @@ class PlayerService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    // playInit();
   }
 
   @override

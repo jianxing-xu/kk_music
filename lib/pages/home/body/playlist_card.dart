@@ -17,7 +17,7 @@ class PlayListCardWidget extends StatelessWidget {
         (double.parse(playListItem.countPlay) / 10000).toStringAsFixed(1);
     return GestureDetector(
       onTap: () {
-        // TODO: 跳转到歌单详情
+        // 跳转到歌单详情
         Get.toNamed(Routes.PlayListDetail, arguments: {'id': playListItem.id});
       },
       child: Container(

@@ -33,9 +33,7 @@ class AppResponse {
           HttpException(response.statusMessage, response.statusCode));
     } catch (e) {}
     var data = json.decode(response.data);
-    print("HANDLE_SUCCESS_RESPONSE_PRE: ${data}");
     if (data['url'] != null) {
-      print("--------------URL--------------");
       return AppResponse._handleUrl(data);
     }
     return AppResponse._handleSuccessData(json.decode(response.data));
@@ -75,9 +73,8 @@ class AppResponse {
     _ok = false;
   }
 
-  // TODO: 处理 code: xx, data: xx, success: xx，在这里http请求是成功的！
+  //  处理 code: xx, data: xx, success: xx，在这里http请求是成功的！
   AppResponse._handleSuccessData([Map<String, dynamic> data]) {
-    print("HANDLE_SUCCESS: $data");
     if (data['code'] == 200) {
       _data = data['data'];
       _ok = true;

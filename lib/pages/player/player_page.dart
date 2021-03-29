@@ -15,12 +15,12 @@ class Player extends StatelessWidget {
             title: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("${service?.currSong?.name ?? '--'}",
+                Text("${service?.song?.value?.name ?? '--'}",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Get.theme.textTheme.bodyText1),
                 Text(
-                  "${service?.currSong?.artist ?? '--'}",
+                  "${service?.song?.value?.artist ?? '--'}",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 12, color: Get.theme.hoverColor),
@@ -43,7 +43,7 @@ class Player extends StatelessWidget {
                   child: Container(
                     width: Get.width * 0.8,
                     height: Get.width * 0.8,
-                    child: Image.network("${service?.currSong?.pic ?? ""}"),
+                    child: Image.network("${service?.song?.value?.pic ?? ""}"),
                     decoration: BoxDecoration(
                         image: DecorationImage(
                             image: AssetImage("assets/images/placeholder.png"),
@@ -81,7 +81,7 @@ class Player extends StatelessWidget {
                       service.seekTime((service.totalTime * v).toInt());
                     },
                     onChanged: (v) {
-                      if (service.currSong == null) return;
+                      if (service.song.value == null) return;
                       service.percent.value = v;
                     },
                   ),

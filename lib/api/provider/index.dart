@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 abstract class Provider {
   static final client = Get.find<DioClient>();
 
-//?format=mp3&rid=170976806&response=url&type=convert_url3
+  // 用于刷新cookie中的kw_token
   static void refreshCookie() {
     client
         .get("/url?format=mp3&rid=12312&response=url&type=convert_url3",
@@ -15,7 +15,6 @@ abstract class Provider {
         .then((value) {});
   }
 
-  /// http://m.kuwo.cn/newh5app/api/mobile
   /// 获取首页数据
   static Future<AppResponse> getHomeData() async {
     return client.get("http://m.kuwo.cn/newh5app/api/mobile/v1/home");
@@ -26,13 +25,14 @@ abstract class Provider {
     return client.get("/api/www/bang/bang/bangMenu");
   }
 
-  /// 获取排行榜详情 /api/www/bang/bang/musicList?bangId=93&pn=1&rn=30&httpsStatus=1
+  /// 获取排行榜详情
   static Future<AppResponse> getRankDetail(String bangId,
       {int pn = 1, int rn = 30}) async {
     return client.get("/api/www/bang/bang/musicList",
         queryParameters: {'bangId': bangId, 'pn': pn, 'rn': rn});
   }
 
+  // 获取MP3资源
   static Future<AppResponse> getUri(String rid) async {
     var param = <String, dynamic>{
       'format': 'mp3',
@@ -48,6 +48,7 @@ abstract class Provider {
     return AppResponse.handle(res);
   }
 
+  // 获取歌词
   static Future<AppResponse> getLyric(String rid) {
     return client
         .get("http://m.kuwo.cn/newh5app/api/mobile/v1/music/info/$rid");

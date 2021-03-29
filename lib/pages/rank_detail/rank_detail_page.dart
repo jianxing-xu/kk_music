@@ -70,8 +70,9 @@ class RankDetail extends StatelessWidget {
                                                   Get.theme.primaryColor),
                                         ),
                                         onPressed: () {
-                                          playService.loadListAndPlay(
-                                              0, controller.bang.musicList);
+                                          playService.setPlayList(
+                                              controller.bang?.musicList);
+                                          playService.next();
                                         },
                                         child: Text('播放全部'))
                                   ],
@@ -101,6 +102,7 @@ class RankDetail extends StatelessWidget {
         // slivers: [_buildHeader(), _buildBody()]),
         );
   }
+
   Widget _buildBody() {
     return EasyRefresh(
       controller: controller.erctrl,
@@ -149,7 +151,15 @@ class RankDetail extends StatelessWidget {
         Song item = list[i];
         widgets.add(ListTile(
           onTap: () {
-            playService.loadListAndPlay(i, list);
+            var f = playService.playList?.indexWhere((v) => v.rid == item.rid);
+            if (f != -1 && playService.playList != null) {
+              print("在列表中找到了这首歌");
+              playService.setCurrentIndex(i);
+            } else {
+              print("新的播放列表");
+              playService.setPlayList(list);
+              playService.setCurrentIndex(i);
+            }
           },
           title: RichText(
             maxLines: 1,
