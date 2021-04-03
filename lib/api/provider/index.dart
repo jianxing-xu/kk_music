@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_make_music/api/app_response.dart';
 import 'package:flutter_make_music/api/dio_client.dart';
 import 'package:flutter_make_music/services/dio_config_service.dart';
@@ -52,5 +53,26 @@ abstract class Provider {
   static Future<AppResponse> getLyric(String rid) {
     return client
         .get("http://m.kuwo.cn/newh5app/api/mobile/v1/music/info/$rid");
+  }
+
+  // 搜索建议（为空时，十个热门）
+  static Future<AppResponse> getSearchKey([String key = ""]) {
+    return client.get("/api/www/search/searchKey",
+        queryParameters: {
+          'key': key,
+          'httpsStatus': 1,
+          "reqId": "596d10a0-91ff-11eb-95eb-affa89622a46"
+        },
+        options: Options(
+            headers: {'Host': 'kuwo.cn', 'Referer': 'https://kuwo.cn/'}));
+  }
+
+  // 搜索音乐 Music Artist
+  static Future<AppResponse> getSearchResult(
+      [String key = "", String type = "Music", int pn = 1, int rn = 30]) {
+    return client.get("/api/www/search/search${type}BykeyWord",
+        queryParameters: {'key': key, 'httpsStatus': 1, 'pn': pn, 'rn': rn},
+        options: Options(
+            headers: {'Host': 'kuwo.cn', 'Referer': 'https://kuwo.cn/'}));
   }
 }

@@ -1,6 +1,8 @@
 // 首页顶部AppBar
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_make_music/routes/app_pages.dart';
+import 'package:flutter_make_music/widget/base/loading.dart';
 import 'package:get/get.dart';
 
 class MyAppBar extends PreferredSize {
@@ -30,7 +32,7 @@ class MyAppBar extends PreferredSize {
                 child: Container(
                   child: GestureDetector(
                     onTap: () {
-                      Get.toNamed('/Search');
+                      Get.toNamed(Routes.Search);
                     },
                     child: Icon(
                       Icons.search,

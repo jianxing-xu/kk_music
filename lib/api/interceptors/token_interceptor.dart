@@ -12,21 +12,20 @@ import 'package:get/get.dart' hide Response;
 class TokenInterceptors extends InterceptorsWrapper {
   @override
   onRequest(RequestOptions options) async {
-    print("TOKEN 请求拦截，");
+    // print("TOKEN 请求拦截，");
     //授权码
-    var authorizationCode = await getAuthorization();
-    options.headers["Authorization"] = authorizationCode;
+    // var authorizationCode = await getAuthorization();
+    // options.headers["Authorization"] = authorizationCode;
 
     // kuwo csrf认证
     options.headers['csrf'] = getCSRF();
 
-    print(options.headers.toString());
+    // print(options.headers.toString());
     return options;
   }
 
   @override
   onResponse(Response response) async {
-    print("TOKEN 响应拦截");
     return response;
   }
 

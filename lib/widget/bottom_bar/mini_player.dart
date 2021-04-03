@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_make_music/model/song.dart';
 import 'package:flutter_make_music/pages/player/player_page.dart';
+import 'package:flutter_make_music/routes/app_pages.dart';
 import 'package:flutter_make_music/services/player_service.dart';
 import 'package:flutter_make_music/utils/constants.dart';
+import 'package:flutter_make_music/widget/base/loading.dart';
 import 'package:get/get.dart';
 
 class MiniPlayer extends GetView<PlayerService> {
@@ -176,9 +178,15 @@ class BuildBottomSheet extends GetView<PlayerService> {
                             GestureDetector(
                               child: Icon(Icons.delete),
                               onTap: () {
-                                controller.playInit();
-                                controller.playList.value = [];
-                                Get.back();
+                                Get.defaultDialog(
+                                    title: "",
+                                    content: Text("确认删除所有吗?"),
+                                    onConfirm: () {
+                                      controller.playInit();
+                                      controller.playList.value = [];
+                                      Get.back();
+                                      Get.back();
+                                    });
                               },
                             )
                           ],
@@ -199,60 +207,56 @@ class BuildBottomSheet extends GetView<PlayerService> {
   }
 
   Widget _buildSongItem(Song song, VoidCallback callback) {
-    bool flag = song.rid == controller.song.value.rid;
+    bool flag = song.rid == controller.song.value?.rid;
     return GestureDetector(
       onTap: callback,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        padding: EdgeInsets.only(left: 10),
         decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Get.theme.hintColor))),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              child: Row(
-                children: [
-                  LimitedBox(
-                    child: Text(
-                      "${song.name}",
+            Expanded(
+              child: Container(
+                child: Row(
+                  children: [
+                    Expanded(
+                        child: RichText(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontSize: 13,
-                          color:
-                              flag ? Get.theme.highlightColor : Colors.white),
-                    ),
-                  ),
-                  LimitedBox(
-                    child: Text(
-                      " -- ${song.artist}",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontSize: 10,
-                          color: flag
-                              ? Get.theme.highlightColor
-                              : Get.theme.hoverColor),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 4,
-                  ),
-                  flag
-                      ? Icon(
-                          Icons.play_arrow,
-                          size: 16,
-                          color: Get.theme.highlightColor,
+                      text: TextSpan(children: [
+                        TextSpan(
+                          text: "${song.name}",
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: flag
+                                  ? Get.theme.highlightColor
+                                  : Colors.white),
+                        ),
+                        TextSpan(
+                          text: " - ${song.artist}",
+                          style: TextStyle(
+                              fontSize: 10,
+                              color: flag
+                                  ? Get.theme.highlightColor
+                                  : Get.theme.hoverColor),
                         )
-                      : SizedBox()
-                ],
+                      ]),
+                    )),
+                    SizedBox(
+                      width: 4,
+                    ),
+                    flag ? Loading() : SizedBox()
+                  ],
+                ),
               ),
             ),
             GestureDetector(
               child: Container(
-                height: 20,
-                color: Colors.red,
-                width: 30,
+                height: 40,
+                width: 40,
+                color: Colors.transparent,
                 child: Icon(
                   Icons.close,
                   size: 14,
@@ -260,6 +264,7 @@ class BuildBottomSheet extends GetView<PlayerService> {
               ),
               onTap: () {
                 //TODO: 删除列表里一首歌
+                controller.deleteSongToPlayList(song);
               },
             )
           ],

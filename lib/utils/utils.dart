@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
+
 class Utils {
   static formatTime(double seconds) {
     var minus = (seconds / 60).floor().toString();
@@ -9,5 +13,22 @@ class Utils {
       second = "0$second";
     }
     return "$minus:$second";
+  }
+
+  static ValueChanged debounce(ValueChanged callback,
+      {Duration time = const Duration(milliseconds: 400)}) {
+    Timer timer;
+    return (key) {
+      if (timer?.isActive ?? false) {
+        timer?.cancel();
+        timer = Timer(time, () {
+          callback?.call(key);
+        });
+      } else {
+        timer = Timer(time, () {
+          callback?.call(key);
+        });
+      }
+    };
   }
 }

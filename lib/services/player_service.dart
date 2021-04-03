@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_make_music/api/provider/index.dart';
 import 'package:flutter_make_music/model/lyric.dart';
 import 'package:flutter_make_music/model/song.dart';
+import 'package:flutter_make_music/routes/app_pages.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -99,7 +100,10 @@ class PlayerService extends GetxService {
   changePercent() {
     if (totalTime.value == 0) return 0;
     if (!isTouch) {
-      percent.value = (currentTime.value / totalTime.value).toDouble();
+      var v = (currentTime.value / totalTime.value).toDouble();
+      v = v > 1 ? 1 : v;
+      v = v < 0 ? 0 : v;
+      percent.value = v;
     }
   }
 
@@ -189,6 +193,7 @@ class PlayerService extends GetxService {
         await player.play().catchError((e) {
           print("捕获playError: $e");
         });
+        isComplete = false;
       }
     } catch (e) {
       print(e);
@@ -197,10 +202,10 @@ class PlayerService extends GetxService {
     }
   }
 
-  // 夏一首歌
+  // 下一首歌
   next([bool check = true]) async {
-    print("${canOperator ? '能下一首' : '不能下一首'} --- $canOperator}");
     if (check) if (!canOperator) return;
+    if (playMode.value == PLAY_MODE.one) return seekTime(0);
     if (playMode.value == PLAY_MODE.random) {
       randomIndex();
     } else {
@@ -209,12 +214,16 @@ class PlayerService extends GetxService {
       } else {
         currIndex.value++;
       }
+      print("NEXT_INDEX: ${currIndex.value}");
     }
     loadPlay();
   }
 
   randomIndex() {
-    currIndex.value = Random().nextInt((songCount - 1) < 0 ? 0 : songCount - 1);
+    if (songCount == 1) {
+      return seekTime(0);
+    }
+    currIndex.value = Random().nextInt(songCount);
   }
 
   // 跳转到某一首
@@ -237,12 +246,39 @@ class PlayerService extends GetxService {
   // 插入一首歌曲并播放 （需要改变索引）
   insertSongInPlayList(Song song) {
     //TODO:插入一首歌曲并播放 （需要改变索引）
+    var index = playList.indexWhere((item) => item.rid == song.rid);
+    if (index != -1) {
+      // 在列表中找到了这首歌
+      setCurrentIndex(index);
+    } else {
+      // 没找到 要插入
+      if (currIndex.value < 0) {
+        playList.insert(0, song);
+        setCurrentIndex(0);
+      } else {
+        playList.insert(currIndex.value, song);
+        setCurrentIndex(currIndex.value);
+      }
+    }
+    Get.toNamed(Routes.Player);
   }
 
   // 删除列表中的一首歌曲（需要改变索引）
-  deleteSongToPlayList(String rid) {
+  deleteSongToPlayList(Song tSong) async {
     //TODO: 删除列表中的一首歌曲（需要改变索引）
+    var index = playList.indexWhere((item) => item.rid == tSong.rid);
+    // 删除的是当前播放的歌曲
+    playList.removeWhere((item) => item.rid == tSong.rid);
+    if (index == currIndex.value) {
+      playInit();
+    } else {
+      if (index < currIndex.value) {
+        currIndex.value--;
+      }
+    }
   }
+
+  bool isComplete = false;
 
   @override
   void onReady() {
@@ -271,6 +307,10 @@ class PlayerService extends GetxService {
           print("播放 ready");
           break;
         case ProcessingState.completed:
+          // 此处的complete回调会执行两次，需要用一个变量判断，否则会导致执行两次next()
+          if (isComplete) return;
+          isComplete = true;
+          print("播放 completed");
           // TODO: 处理播放完成后时间
           switch (playMode.value) {
             case PLAY_MODE.one:
@@ -280,7 +320,7 @@ class PlayerService extends GetxService {
               next();
               break;
           }
-          print("播放 completed");
+
           break;
         default:
           break;

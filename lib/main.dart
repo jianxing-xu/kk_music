@@ -22,15 +22,12 @@ void main() async {
   // run app
   runApp(MyApp());
 
-  await Provider.refreshCookie();
+  Provider.refreshCookie();
 }
 
 // 全局使用，隐藏键盘
 hideKeyBoard(BuildContext context) {
-  FocusScopeNode focus = FocusScope.of(context);
-  if (focus.hasPrimaryFocus && focus.focusedChild != null) {
-    FocusManager.instance.primaryFocus.unfocus();
-  }
+  FocusManager?.instance?.primaryFocus?.unfocus();
 }
 
 class MyApp extends StatelessWidget {
@@ -48,9 +45,9 @@ class MyApp extends StatelessWidget {
         initialBinding: HomeBindings(),
         // 路由变化时回调
         routingCallback: (route) {
-          print("ROUTE: ${route.current}");
           globalState.isOpenBottomSheet.value = route.isBottomSheet;
           globalState.currentRoutePath.value = route.current;
+          hideKeyBoard(context);
         },
         builder: (context, child) => GestureDetector(
             onTap: () => hideKeyBoard(context),

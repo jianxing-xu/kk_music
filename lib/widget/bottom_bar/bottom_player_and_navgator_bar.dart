@@ -13,7 +13,6 @@ class GlobalPlayer extends StatelessWidget {
   Widget build(BuildContext context) {
     var globalState = Get.find<GlobalState>();
     return Obx(() {
-      print("build bottom bar");
       return AnimatedPositioned(
           // 在主页面迷你播放器为
           bottom: globalState.themeHack.value

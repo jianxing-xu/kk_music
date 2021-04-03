@@ -30,6 +30,6 @@ class PagingState {
 
   @override
   String toString() {
-    return 'PagingState{pageNum: $pageNum, total: $total, page: $page, isLoading: $isLoading, isFirst: $isFirst}';
+    return 'PagingState{pageNum: $pageNum, total: $total, page: $page, isLoading: $isLoading, isFirst: $isFirst, isEnd: $isEnd}';
   }
 }

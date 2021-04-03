@@ -8,8 +8,10 @@ class SearchInput extends StatelessWidget {
   final bool enabled;
 
   final ValueChanged onChange;
+  final TextEditingController controller;
 
-  SearchInput({this.title, this.enabled = false, this.onChange});
+  SearchInput(
+      {this.title, this.enabled = false, this.onChange, this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +23,7 @@ class SearchInput extends StatelessWidget {
             child: Container(
               height: 35,
               child: TextField(
+                controller: controller,
                 onChanged: onChange,
                 enabled: enabled,
                 decoration: InputDecoration(
