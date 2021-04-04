@@ -2,7 +2,7 @@ class PagingState {
   int pageNum = 20;
 
   int total = 0;
-  int page = 1;
+  int page = 0;
   bool isLoading = false;
 
   bool isFirst = true;
@@ -14,7 +14,7 @@ class PagingState {
 
   reset() {
     isFirst = false;
-    page = 1;
+    page = 0;
     isLoading = false;
   }
 

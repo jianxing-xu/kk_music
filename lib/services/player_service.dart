@@ -148,8 +148,8 @@ class PlayerService extends GetxService {
     totalTime.value = 0;
     percent.value = 0;
     lyric = null;
-    nextLyricStr.value = "";
-    currentLyricStr.value = "";
+    nextLyricStr.value = "--";
+    currentLyricStr.value = "--";
     canOperator = false;
     print("设置canOprator FALSE");
     currentLien = -1;

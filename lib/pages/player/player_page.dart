@@ -152,7 +152,10 @@ class Player extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       GestureDetector(
-                        child: Icon(service.modeIcon),
+                        child: Container(
+                          color: Colors.transparent,
+                          child: Icon(service.modeIcon),
+                        ),
                         onTap: () => service.changeMode(),
                       ),
                       GestureDetector(

@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_make_music/model/song.dart';
 
 import 'package:flutter_make_music/pages/rank_detail/controller.dart';
 import 'package:flutter_make_music/services/global_state.dart';
 import 'package:flutter_make_music/services/player_service.dart';
-import 'package:flutter_make_music/widget/loading_page_widget.dart';
+import 'package:flutter_make_music/widget/base/loading.dart';
 import 'package:flutter_make_music/widget/refresh_header.dart';
 import 'package:get/get.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class RankDetail extends StatelessWidget {
   final controller = Get.put(RankDetailController());
@@ -26,14 +26,13 @@ class RankDetail extends StatelessWidget {
               GetBuilder(
                   init: controller,
                   builder: (_) {
-                    var label = Get.arguments['label'];
                     return SliverAppBar(
                         pinned: true,
                         expandedHeight: 240,
                         collapsedHeight: 60,
                         title: Obx(() => Opacity(
                               opacity: controller.percent.value ?? 0,
-                              child: Text("${label ?? ''}"),
+                              child: Text("${controller.label ?? ''}"),
                             )),
                         bottom: PreferredSize(
                           preferredSize: Size.fromHeight(40),
@@ -104,47 +103,55 @@ class RankDetail extends StatelessWidget {
   }
 
   Widget _buildBody() {
-    return EasyRefresh(
-      controller: controller.erctrl,
-      header: xRefreshHeader,
-      footer: xRefreshFooter,
-      onRefresh: () async {
-        await controller.pagingState.reset();
-        controller.bang.musicList.clear();
-        await controller.loadData();
+    return GetBuilder(
+      builder: (_) {
+        List<Song> list = controller?.bang?.musicList ?? [];
+        return FutureBuilder(
+            future: controller.future,
+            builder: (c, snapshot) {
+              Widget widget;
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasError) {
+                  widget = Center(
+                    child: ElevatedButton(
+                      onPressed: () => controller.loadData(),
+                      child: Text("点击重试"),
+                    ),
+                  );
+                } else {
+                  widget = Column(
+                    children: [
+                      Expanded(
+                          child: SmartRefresher(
+                        enablePullUp: true,
+                        enablePullDown: true,
+                        controller: controller.refreshController,
+                        onLoading: controller.loadMore,
+                        onRefresh: controller.refreshData,
+                        footer: refreshFooter(controller.refreshController),
+                        header: refreshHeader,
+                        child: ListView(
+                          children: _buildSongList(list),
+                        ),
+                      )),
+                      SizedBox(height: 10 //Constants.miniPlayerHeight,
+                          )
+                    ],
+                  );
+                }
+              } else {
+                widget = Container(
+                  child: Loading(),
+                );
+              }
+              return widget;
+            });
       },
-      onLoad: () async {
-        controller.pagingState.nextPage();
-        if (controller.pagingState.isEnd) {
-          controller.erctrl.finishLoad(noMore: true);
-          print("-----------------到底了-------------------");
-          return;
-        }
-        await controller.loadData();
-      },
-      child: GetBuilder(
-        builder: (_) {
-          List<Song> list = controller?.bang?.musicList ?? [];
-          return LoadingPage(
-              callback: () async {
-                controller.pageNetState.init();
-                controller.update();
-                await controller.loadData();
-              },
-              loading:
-                  controller?.pageNetState?.loading ?? controller?.bang == null,
-              error: controller.pageNetState.error,
-              child: Column(
-                children: _buildSongList(list),
-              ));
-        },
-        init: controller,
-      ),
+      init: controller,
     );
   }
 
   List<Widget> _buildSongList(List<Song> list) {
-    print("构建SONG_LIST: $list");
     var widgets = <Widget>[];
     if (list != null) {
       for (int i = 0; i < list.length; i++) {

@@ -1,12 +1,15 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_make_music/pages/search/search_controller.dart';
 import 'package:flutter_make_music/services/player_service.dart';
 import 'package:flutter_make_music/utils/constants.dart';
+import 'package:flutter_make_music/widget/base/loading.dart';
 import 'package:flutter_make_music/widget/refresh_header.dart';
 import 'package:flutter_make_music/widget/search_input.dart';
 import 'package:get/get.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 // TODO: 搜索出错 容错处理。
 
@@ -195,9 +198,7 @@ class SuggestView extends GetView<SearchController> {
         var widgets = <Widget>[];
         // 添加第一个搜索词
         widgets.add(GestureDetector(
-          onTap: () {
-            controller.search();
-          },
+          onTap: () => controller.initSearch(),
           child: ListTile(
             title: Text(
               "搜索：\"${controller.keyword.value}\"",
@@ -228,112 +229,126 @@ class ResultView extends GetView<SearchController> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: [
-          Container(
-            height: 40,
-            child: TabBar(
-                isScrollable: true,
-                indicatorColor: Get.theme.highlightColor,
-                indicatorWeight: 3,
-                indicatorSize: TabBarIndicatorSize.label,
-                controller: controller.tabController,
-                tabs: [Text("单曲"), Text("歌手")]),
-          ),
-          Expanded(
-            child: TabBarView(
+    return Column(
+      children: [
+        Container(
+          height: 40,
+          child: TabBar(
+              isScrollable: true,
+              indicatorColor: Get.theme.highlightColor,
+              indicatorWeight: 3,
+              indicatorSize: TabBarIndicatorSize.label,
               controller: controller.tabController,
-              children: [
-                _buildSongResult(),
-                _buildArtistResult(),
-              ],
-            ),
-          )
-        ],
-      ),
+              tabs: [Text("单曲"), Text("歌手")]),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: controller.tabController,
+            children: [
+              _buildSongResult(),
+              _buildArtistResult(),
+            ],
+          ),
+        )
+      ],
     );
   }
 
   _buildSongResult() {
-    return EasyRefresh(
-      header: xRefreshHeader,
-      footer: xRefreshFooter,
-      controller: controller.easyController,
-      onLoad: () async {
-        if (controller.pagingState.isEnd) {
-          controller.easyController.finishLoad(noMore: true, success: true);
-        } else {
-          await controller.search();
-        }
-      },
-      child: Obx(() {
-        var list = controller.result.value?.list;
-        if (controller.error.value) {
-          return Center(
-            child: ElevatedButton(
-              onPressed: () => controller.search(),
-              child: Text("点击重试"),
-            ),
-          );
-        }
-        if (list == null) {
-          return Center(
-            child: CupertinoActivityIndicator(),
-          );
-        }
-        var widgets = <Widget>[];
-        list.forEach((song) {
-          widgets.add(ListTile(
-            onTap: () {
-              player.insertSongInPlayList(song);
-            },
-            leading: Icon(Icons.music_note),
-            title: Text("${song.name} - ${song.artist}"),
-          ));
-        });
-        return Column(
-          children: widgets,
-        );
-      }),
-    );
+    return Obx(() {
+      var list = controller.result.value?.list;
+      var widgets = <Widget>[];
+      list?.forEach((song) {
+        widgets.add(ListTile(
+          onTap: () => player.insertSongInPlayList(song),
+          leading: Icon(Icons.music_note),
+          title: Text("${song.name} - ${song.artist}"),
+        ));
+      });
+      return FutureBuilder(
+          future: controller.resultFuture.value,
+          builder: (context, snapshot) {
+            Widget widget;
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasError) {
+                widget = Center(
+                  child: ElevatedButton(
+                    onPressed: () => controller.initSearch(),
+                    child: Text("点击重试"),
+                  ),
+                );
+              } else {
+                widget = SmartRefresher(
+                    enablePullUp: true,
+                    enablePullDown: true,
+                    header: refreshHeader,
+                    footer: refreshFooter(controller.refreshController),
+                    controller: controller.refreshController,
+                    onRefresh: () => controller.refreshData(),
+                    onLoading: () {
+                      print("加载");
+                      controller.loadMore();
+                    },
+                    child: ListView(
+                      children: widgets,
+                    ));
+              }
+            } else {
+              widget = Center(
+                child: Loading(),
+              );
+            }
+            return widget;
+          });
+    });
   }
 
   _buildArtistResult() {
-    return EasyRefresh(
-      header: xRefreshHeader,
-      footer: xRefreshFooter,
-      controller: controller.easyController,
-      onLoad: () async {
-        print(controller.pagingState);
-        if (controller.pagingState.isEnd) {
-          controller.easyController.finishLoad(noMore: true, success: true);
-        } else {
-          await controller.search(type: "Artist");
-        }
-      },
-      child: Obx(() {
-        var list = controller.result.value?.artistList;
-        if (list == null) {
-          return Center(
-            child: CupertinoActivityIndicator(),
-          );
-        }
-        var widgets = <Widget>[];
-        list.forEach((artist) {
-          var avatar = CircleAvatar(
-            child: artist.pic != null ? Image.network(artist.pic) : SizedBox(),
+    return Obx(() {
+      var list = controller.result.value?.artistList;
+      var widgets = <Widget>[];
+      list?.forEach((artist) {
+        widgets.add(ListTile(
+          onTap: () => {},
+          leading: CircleAvatar(
             backgroundColor: Get.theme.backgroundColor,
-          );
-          widgets.add(ListTile(
-            leading: avatar,
-            title: Text("${artist.name}"),
-          ));
-        });
-        return Column(
-          children: widgets,
-        );
-      }),
-    );
+            child: artist.pic != null ? Image.network(artist.pic) : SizedBox(),
+          ),
+          title: Text("${artist.name}"),
+        ));
+      });
+      return FutureBuilder(
+          future: controller.resultFuture.value,
+          builder: (context, snapshot) {
+            Widget widget;
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasError) {
+                widget = Center(
+                  child: ElevatedButton(
+                    onPressed: () => controller.initSearch(type: "Artist"),
+                    child: Text("点击重试"),
+                  ),
+                );
+              } else {
+                widget = SmartRefresher(
+                  enablePullUp: true,
+                  header: refreshHeader,
+                  footer: refreshFooter(controller.refreshController),
+                  controller: controller.refreshController,
+                  onRefresh: () => controller.refreshData(type: "Artist"),
+                  onLoading: () => controller.loadMore(type: "Artist"),
+                  child: ListView(
+                    children: widgets,
+                  ),
+                );
+              }
+            } else {
+              widget = Center(
+                child: Loading(),
+              );
+            }
+            return widget;
+          });
+    });
   }
 }

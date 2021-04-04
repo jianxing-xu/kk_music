@@ -1,21 +1,23 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_make_music/api/provider/index.dart';
 import 'package:flutter_make_music/model/search_result.dart';
-import 'package:flutter_make_music/model/song.dart';
 import 'package:flutter_make_music/utils/pagin_state.dart';
 import 'package:flutter_make_music/utils/utils.dart';
 import 'package:get/get.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class SearchController extends GetxController
     with SingleGetTickerProviderMixin {
+  final cancelToken = CancelToken();
+
   TabController tabController;
   TextEditingController searchController;
-  EasyRefreshController easyController;
-  PagingState pagingState = PagingState();
-  final keyword = "".obs;
-  final hotKeys = <String>[].obs;
-  final searchKeys = <String>[].obs;
+  PagingState pagingState = PagingState(); // 分页状态
+  final keyword = "".obs; // 关键词
+
+  final hotKeys = <String>[].obs; // 热词数据
+  final searchKeys = <String>[].obs; // 推荐词
 
   final Rx<SearchResult> result = Rx<SearchResult>();
 
@@ -27,47 +29,79 @@ class SearchController extends GetxController
     return 1;
   }
 
-  final error = false.obs;
+  /// ------------------------ FIX ------------------------- ///
 
-  search({String type = "Music"}) async {
-    error.value = false;
-    // 点击搜索就跳转到搜索结果
-    isResult.value = true;
+  // Pull To Refresh Controller
+  RefreshController refreshController =
+      RefreshController(initialRefresh: false);
+
+  final resultFuture = Rx<Future>(null);
+
+  // 初始化搜索，
+  initSearch({String type = "Music"}) {
+    if (!isResult.value) isResult.value = true;
+    pagingState.reset();
+    refreshController.loadComplete();
+    resultFuture.value = Provider.getSearchResult(
+            keyword.value, type, pagingState.page, pagingState.pageNum)
+        .then((res) {
+      if (res.ok) {
+        var data = SearchResult.fromJson(res.data);
+        // 当在歌手列表时，删除附带的歌曲数据
+        if (type == "Artist") {
+          data.list = null;
+        }
+        pagingState.total = data.total;
+        result.value = data;
+        return data;
+      }
+    }).catchError((e) {
+      throw e;
+    });
+  }
+
+  loadMore({String type = "Music"}) async {
+    print(pagingState);
+    if (pagingState.isEnd) return refreshController.loadNoData();
+    pagingState.nextPage();
     try {
       var res = await Provider.getSearchResult(
           keyword.value, type, pagingState.page, pagingState.pageNum);
       if (res.ok) {
         var data = SearchResult.fromJson(res.data);
-        if (result.value == null) {
-          pagingState.total = data.total;
-          if (type == "Artist") {
-            result.value = SearchResult(artistList: data.artistList);
-          } else {
-            result.value = data;
-          }
-        } else {
+        result.update((val) {
           if (type == "Music") {
-            result.update((val) {
-              var list = <Song>[];
-              list..addAll(val.list)..addAll(data.list);
-              val.list = list;
-            });
+            val.list.addAll(data.list);
+          } else {
+            val.artistList.addAll(data.artistList);
           }
-          if (type == "Artist") {
-            result.update((val) {
-              var list = <Artist>[];
-              list..addAll(val.artistList)..addAll(data.artistList);
-              val.artistList = list;
-            });
-          }
-        }
-        // TODO: 加载更多页面不刷新
-        pagingState.page++;
+        });
+        refreshController.loadComplete();
       }
     } catch (e) {
-      print(e);
-      print("搜索结果出错");
-      error.value = true;
+      refreshController.loadFailed();
+      pagingState.page--;
+    }
+  }
+
+  refreshData({String type = "Music"}) async {
+    pagingState.reset();
+    try {
+      var res = await Provider.getSearchResult(
+          keyword.value, type, pagingState.page, pagingState.pageNum);
+      if (res.ok) {
+        var data = SearchResult.fromJson(res.data);
+        result.update((val) {
+          if (type == "Music") {
+            val.list = data.list;
+          } else {
+            val.artistList = data.artistList;
+          }
+        });
+        refreshController.refreshCompleted();
+      }
+    } catch (e) {
+      refreshController.refreshFailed();
     }
   }
 
@@ -111,31 +145,32 @@ class SearchController extends GetxController
       loadSearchKeys();
     }));
     tabController.addListener(() {
-      pagingState.reset();
-      result.value = null;
       if (tabController.index == 0) {
-        search();
-      }
-      if (tabController.index == 1) {
-        search(type: "Artist");
+        result.update((val) {
+          val.artistList = null;
+        });
+        initSearch();
+      } else if (tabController.index == 1) {
+        result.update((val) {
+          val.list = null;
+        });
+        initSearch(type: "Artist");
       }
     });
   }
 
   @override
   void onClose() {
-    super.onClose();
     tabController.dispose();
     searchController.dispose();
-    easyController.dispose();
+    super.onClose();
   }
 
   @override
   void onInit() {
-    super.onInit();
     tabController = TabController(length: 2, vsync: this);
     searchController = TextEditingController();
-    easyController = EasyRefreshController();
     result.value = null;
+    super.onInit();
   }
 }

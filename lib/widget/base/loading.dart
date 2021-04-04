@@ -45,9 +45,10 @@ class _LoadingState extends State<Loading> with SingleTickerProviderStateMixin {
   }
 
   Widget build(BuildContext context) {
-    return Container(
+    return Center(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 4,
