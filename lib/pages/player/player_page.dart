@@ -69,25 +69,35 @@ class Player extends StatelessWidget {
                 // 播放进度条
                 Container(
                   margin: EdgeInsets.only(top: 15),
-                  width: Get.width * 0.8,
+                  padding: EdgeInsets.zero,
+                  width: Get.width * 1,
                   child: CupertinoSlider(
                     value: service.percent.value,
                     activeColor: Get.theme.highlightColor,
                     onChangeStart: (v) {
+                      if (!service.canOperator) return;
+                      print("START");
                       service.isTouch = true;
                     },
                     onChangeEnd: (v) {
+                      if (!service.canOperator) return;
+                      print("END : $v");
                       service.isTouch = false;
                       service.seekTime((service.totalTime * v).toInt());
                     },
                     onChanged: (v) {
+                      if (!service.canOperator) return;
+                      print("CH:ANGE");
                       if (service.song.value == null) return;
                       service.percent.value = v;
+                      service.currentTime.value =
+                          (service.totalTime.value * v).toInt();
+                      service.changeCurrentLine();
                     },
                   ),
                 ),
                 Container(
-                  width: Get.width * 0.8,
+                  width: Get.width * 0.88,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -120,16 +130,21 @@ class Player extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: () {
+                          if (service.loading.value) return;
                           service.playing.value
                               ? service.pause()
                               : service.play();
                         },
-                        child: Icon(
-                          service.playing.value
-                              ? Icons.pause
-                              : Icons.play_arrow,
-                          size: 50,
-                        ),
+                        child: !service.loading.value
+                            ? Icon(
+                                service.playing.value
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
+                                size: 50,
+                              )
+                            : CupertinoActivityIndicator(
+                                radius: 20,
+                              ),
                       ),
                       SizedBox(
                         width: 30,

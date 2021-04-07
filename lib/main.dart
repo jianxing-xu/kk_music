@@ -5,6 +5,7 @@ import 'package:flutter_make_music/pages/home/bindings.dart';
 import 'package:flutter_make_music/pages/mine/mine_page.dart';
 import 'package:flutter_make_music/services/global_state.dart';
 import 'package:flutter_make_music/utils/theme.dart';
+import 'package:flutter_make_music/utils/utils.dart';
 import 'package:flutter_make_music/widget/bottom_bar//bottom_player_and_navgator_bar.dart';
 import 'package:get/get.dart';
 import 'package:flutter_make_music/pages/home/home_page.dart';
@@ -25,11 +26,6 @@ void main() async {
   Provider.refreshCookie();
 }
 
-// 全局使用，隐藏键盘
-hideKeyBoard(BuildContext context) {
-  FocusManager?.instance?.primaryFocus?.unfocus();
-}
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -47,10 +43,10 @@ class MyApp extends StatelessWidget {
         routingCallback: (route) {
           globalState.isOpenBottomSheet.value = route.isBottomSheet;
           globalState.currentRoutePath.value = route.current;
-          hideKeyBoard(context);
+          Utils.hideKeyBoard(context);
         },
         builder: (context, child) => GestureDetector(
-            onTap: () => hideKeyBoard(context),
+            onTap: () => Utils.hideKeyBoard(context),
             child: Stack(
               children: [child, GlobalPlayer()],
             )),

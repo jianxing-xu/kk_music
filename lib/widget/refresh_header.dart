@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart' hide CustomFooter;
 import 'package:flutter_make_music/utils/constants.dart';
 import 'package:get/get.dart';
@@ -54,7 +55,9 @@ var refreshFooter = (RefreshController controller) => CustomFooter(
         } else {
           body = Text("到底了");
         }
-        return Center(
+        return Container(
+          padding: EdgeInsets.only(top: 25),
+          alignment: Alignment.center,
           child: body,
         );
       },

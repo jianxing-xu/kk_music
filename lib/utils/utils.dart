@@ -31,4 +31,8 @@ class Utils {
       }
     };
   }
+
+  static hideKeyBoard(BuildContext context) {
+    FocusManager?.instance?.primaryFocus?.unfocus();
+  }
 }

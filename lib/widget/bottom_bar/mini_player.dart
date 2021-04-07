@@ -263,7 +263,7 @@ class BuildBottomSheet extends GetView<PlayerService> {
                 ),
               ),
               onTap: () {
-                //TODO: 删除列表里一首歌
+                //删除列表里一首歌
                 controller.deleteSongToPlayList(song);
               },
             )

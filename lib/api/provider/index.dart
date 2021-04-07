@@ -56,15 +56,19 @@ abstract class Provider {
   }
 
   // 搜索建议（为空时，十个热门）
-  static Future<AppResponse> getSearchKey([String key = ""]) {
+  static Future<AppResponse> getSearchKey(
+      [String key = "", CancelToken cancelToken]) {
     return client.get("/api/www/search/searchKey",
         queryParameters: {
           'key': key,
           'httpsStatus': 1,
           "reqId": "596d10a0-91ff-11eb-95eb-affa89622a46"
         },
-        options: Options(
-            headers: {'Host': 'kuwo.cn', 'Referer': 'https://kuwo.cn/'}));
+        cancelToken: cancelToken,
+        options: Options(headers: {
+          'Host': 'kuwo.cn',
+          'Referer': 'https://kuwo.cn/',
+        }));
   }
 
   // 搜索音乐 Music Artist

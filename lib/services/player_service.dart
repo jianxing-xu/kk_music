@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_make_music/api/app_response.dart';
 import 'package:flutter_make_music/api/provider/index.dart';
 import 'package:flutter_make_music/model/lyric.dart';
 import 'package:flutter_make_music/model/song.dart';
@@ -137,6 +138,7 @@ class PlayerService extends GetxService {
   // 跳转到指定时间
   seekTime(int seconds) async {
     if (song == null) return;
+    print("SEEK_TIME");
     await player.seek(Duration(seconds: seconds));
   }
 
@@ -178,28 +180,28 @@ class PlayerService extends GetxService {
     await playInit();
     // 赋值当前歌曲
     song.value = playList[currIndex.value];
-    try {
-      print("currIndex.value: $currIndex.value, rid: ${song?.value?.rid}");
-      var res = await Provider.getUri(song.value.rid.toString());
-      var lrcRes = await Provider.getLyric(song.value.rid.toString());
-      if (lrcRes.ok) {
-        lyric = Lyric.fromJson(lrcRes.data);
-      }
+
+    //-----TODO：分两次请求导致歌词延迟到达而导致，歌曲和歌词不匹配问题 ----//
+
+    Provider.getUri(song.value.rid.toString()).then((res) async {
       if (res.ok) {
         var duration = await player.setUrl("${res.data}");
         totalTime.value = duration.inSeconds.toDouble();
-        print("设置canOprator TRUE");
         canOperator = true;
-        await player.play().catchError((e) {
-          print("捕获playError: $e");
-        });
+        await player.play().catchError((e) {});
         isComplete = false;
       }
-    } catch (e) {
-      print(e);
-      Get.snackbar("title", "播放出错");
+    }).catchError((e) {
+      print("加载歌曲错误");
       next(false);
-    }
+    });
+    Provider.getLyric(song.value.rid.toString()).then((res) {
+      if (res.ok) {
+        lyric = Lyric.fromJson(res.data);
+      }
+    }).catchError((e) {
+      print("加载歌词错误");
+    });
   }
 
   // 下一首歌
@@ -245,7 +247,7 @@ class PlayerService extends GetxService {
 
   // 插入一首歌曲并播放 （需要改变索引）
   insertSongInPlayList(Song song) {
-    //TODO:插入一首歌曲并播放 （需要改变索引）
+    //插入一首歌曲并播放 （需要改变索引）
     var index = playList.indexWhere((item) => item.rid == song.rid);
     if (index != -1) {
       // 在列表中找到了这首歌
@@ -265,7 +267,7 @@ class PlayerService extends GetxService {
 
   // 删除列表中的一首歌曲（需要改变索引）
   deleteSongToPlayList(Song tSong) async {
-    //TODO: 删除列表中的一首歌曲（需要改变索引）
+    // 删除列表中的一首歌曲（需要改变索引）
     var index = playList.indexWhere((item) => item.rid == tSong.rid);
     // 删除的是当前播放的歌曲
     playList.removeWhere((item) => item.rid == tSong.rid);
@@ -285,6 +287,7 @@ class PlayerService extends GetxService {
     super.onReady();
     player.durationStream.listen((event) {});
     player.positionStream.listen((event) {
+      if (isTouch) return;
       currentTime.value = event.inSeconds;
       changePercent();
       changeCurrentLine();
@@ -311,7 +314,8 @@ class PlayerService extends GetxService {
           if (isComplete) return;
           isComplete = true;
           print("播放 completed");
-          // TODO: 处理播放完成后时间
+          if (playList.length == 1) return seekTime(0);
+          //  处理播放完成后时间
           switch (playMode.value) {
             case PLAY_MODE.one:
               seekTime(0);

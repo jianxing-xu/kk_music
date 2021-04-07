@@ -2,7 +2,7 @@ class PagingState {
   int pageNum = 20;
 
   int total = 0;
-  int page = 0;
+  int page = 1;
   bool isLoading = false;
 
   bool isFirst = true;

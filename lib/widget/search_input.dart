@@ -9,9 +9,19 @@ class SearchInput extends StatelessWidget {
 
   final ValueChanged onChange;
   final TextEditingController controller;
+  final ValueChanged<bool> onFocus;
+
+  final FocusNode _focusNode = FocusNode();
 
   SearchInput(
-      {this.title, this.enabled = false, this.onChange, this.controller});
+      {this.title,
+      this.enabled = false,
+      this.onChange,
+      this.controller,
+      this.onFocus}) {
+    _focusNode.addListener(() => onFocus(_focusNode.hasFocus));
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +33,7 @@ class SearchInput extends StatelessWidget {
             child: Container(
               height: 35,
               child: TextField(
+                focusNode: _focusNode,
                 controller: controller,
                 onChanged: onChange,
                 enabled: enabled,

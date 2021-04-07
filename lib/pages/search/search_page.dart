@@ -1,17 +1,14 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_make_music/pages/search/search_controller.dart';
 import 'package:flutter_make_music/services/player_service.dart';
 import 'package:flutter_make_music/utils/constants.dart';
+import 'package:flutter_make_music/utils/utils.dart';
 import 'package:flutter_make_music/widget/base/loading.dart';
 import 'package:flutter_make_music/widget/refresh_header.dart';
 import 'package:flutter_make_music/widget/search_input.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-
-// TODO: 搜索出错 容错处理。
 
 class SearchPage extends StatelessWidget {
   final logic = Get.put(SearchController());
@@ -38,6 +35,7 @@ class SearchPage extends StatelessWidget {
                 title: "歌手/歌曲",
                 controller: logic.searchController,
                 onChange: (v) => logic.keyword.value = v,
+                onFocus: logic.onFocus,
               ),
               SizedBox(
                 width: 10,
@@ -47,7 +45,7 @@ class SearchPage extends StatelessWidget {
         ),
       ),
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
         child: Obx(() {
           return IndexedStack(
             index: logic.indexed,
@@ -198,7 +196,10 @@ class SuggestView extends GetView<SearchController> {
         var widgets = <Widget>[];
         // 添加第一个搜索词
         widgets.add(GestureDetector(
-          onTap: () => controller.initSearch(),
+          onTap: () {
+            Utils.hideKeyBoard(context);
+            controller.initSearch();
+          },
           child: ListTile(
             title: Text(
               "搜索：\"${controller.keyword.value}\"",
@@ -208,8 +209,16 @@ class SuggestView extends GetView<SearchController> {
         ));
         widgets.addAll(List.generate(controller.searchKeys.length, (index) {
           var item = controller.searchKeys[index];
-          return ListTile(
-            title: Text("$item"),
+          return GestureDetector(
+            onTap: () async {
+              Utils.hideKeyBoard(context);
+              controller.keyword.value = item;
+              controller.searchController.text = item;
+              controller.initSearch();
+            },
+            child: ListTile(
+              title: Text("$item"),
+            ),
           );
         }).toList());
         // 添加最后一个占位高度
@@ -278,20 +287,25 @@ class ResultView extends GetView<SearchController> {
                   ),
                 );
               } else {
-                widget = SmartRefresher(
-                    enablePullUp: true,
-                    enablePullDown: true,
-                    header: refreshHeader,
-                    footer: refreshFooter(controller.refreshController),
-                    controller: controller.refreshController,
-                    onRefresh: () => controller.refreshData(),
-                    onLoading: () {
-                      print("加载");
-                      controller.loadMore();
-                    },
-                    child: ListView(
-                      children: widgets,
-                    ));
+                widget = Column(
+                  children: [
+                    Expanded(
+                        child: SmartRefresher(
+                            enablePullUp: true,
+                            enablePullDown: true,
+                            header: refreshHeader,
+                            footer: refreshFooter(controller.refreshController),
+                            controller: controller.refreshController,
+                            onRefresh: controller.refreshData,
+                            onLoading: controller.loadMore,
+                            child: ListView(
+                              children: widgets,
+                            ))),
+                    SizedBox(
+                      height: Constants.miniPlayerHeight / 2,
+                    )
+                  ],
+                );
               }
             } else {
               widget = Center(
@@ -330,16 +344,24 @@ class ResultView extends GetView<SearchController> {
                   ),
                 );
               } else {
-                widget = SmartRefresher(
-                  enablePullUp: true,
-                  header: refreshHeader,
-                  footer: refreshFooter(controller.refreshController),
-                  controller: controller.refreshController,
-                  onRefresh: () => controller.refreshData(type: "Artist"),
-                  onLoading: () => controller.loadMore(type: "Artist"),
-                  child: ListView(
-                    children: widgets,
-                  ),
+                widget = Column(
+                  children: [
+                    Expanded(
+                        child: SmartRefresher(
+                      enablePullUp: true,
+                      header: refreshHeader,
+                      footer: refreshFooter(controller.refreshController),
+                      controller: controller.refreshController,
+                      onRefresh: () => controller.refreshData(type: "Artist"),
+                      onLoading: () => controller.loadMore(type: "Artist"),
+                      child: ListView(
+                        children: widgets,
+                      ),
+                    )),
+                    SizedBox(
+                      height: Constants.miniPlayerHeight,
+                    )
+                  ],
                 );
               }
             } else {
