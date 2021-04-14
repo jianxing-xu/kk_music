@@ -82,6 +82,7 @@ class BangType {
     var data = Map<String, dynamic>();
     data['name'] = this.name;
     data['list'] = this.list.map((e) => e.toJson());
+    return data;
   }
 
   @override

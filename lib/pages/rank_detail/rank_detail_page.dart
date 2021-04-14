@@ -5,6 +5,7 @@ import 'package:flutter_make_music/model/song.dart';
 import 'package:flutter_make_music/pages/rank_detail/controller.dart';
 import 'package:flutter_make_music/services/global_state.dart';
 import 'package:flutter_make_music/services/player_service.dart';
+import 'package:flutter_make_music/utils/constants.dart';
 import 'package:flutter_make_music/widget/base/loading.dart';
 import 'package:flutter_make_music/widget/refresh_header.dart';
 import 'package:get/get.dart';
@@ -134,8 +135,9 @@ class RankDetail extends StatelessWidget {
                           children: _buildSongList(list),
                         ),
                       )),
-                      SizedBox(height: 10 //Constants.miniPlayerHeight,
-                          )
+                      SizedBox(
+                        height: Constants.miniPlayerHeight,
+                      )
                     ],
                   );
                 }

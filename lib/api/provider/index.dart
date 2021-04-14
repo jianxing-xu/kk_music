@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_make_music/api/app_response.dart';
 import 'package:flutter_make_music/api/dio_client.dart';
-import 'package:flutter_make_music/services/dio_config_service.dart';
 
 import 'package:get/get.dart';
 
@@ -50,9 +49,9 @@ abstract class Provider {
   }
 
   // 获取歌词
-  static Future<AppResponse> getLyric(String rid) {
-    return client
-        .get("http://m.kuwo.cn/newh5app/api/mobile/v1/music/info/$rid");
+  static Future<AppResponse> getLyric(String rid, CancelToken cancelToken) {
+    return client.get("http://m.kuwo.cn/newh5app/api/mobile/v1/music/info/$rid",
+        cancelToken: cancelToken);
   }
 
   // 搜索建议（为空时，十个热门）
@@ -76,6 +75,15 @@ abstract class Provider {
       [String key = "", String type = "Music", int pn = 1, int rn = 30]) {
     return client.get("/api/www/search/search${type}BykeyWord",
         queryParameters: {'key': key, 'httpsStatus': 1, 'pn': pn, 'rn': rn},
+        options: Options(
+            headers: {'Host': 'kuwo.cn', 'Referer': 'https://kuwo.cn/'}));
+  }
+
+  // 歌单详情
+  static Future<AppResponse> getPlayListDetail(String id,
+      [int pn = 1, int rn = 30]) {
+    return client.get("/api/www/playlist/playListInfo",
+        queryParameters: {'pic': id, 'httpsStatus': 1, 'pn': pn, 'rn': rn},
         options: Options(
             headers: {'Host': 'kuwo.cn', 'Referer': 'https://kuwo.cn/'}));
   }

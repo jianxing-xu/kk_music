@@ -7,11 +7,13 @@ import 'package:flutter_make_music/pages/home/body/playlist_card.dart';
 import 'package:flutter_make_music/pages/home/body/rank_item_card.dart';
 import 'package:flutter_make_music/routes/app_pages.dart';
 import 'package:flutter_make_music/utils/constants.dart';
+import 'package:flutter_make_music/widget/base/loading.dart';
 import 'package:flutter_make_music/widget/loading_page_widget.dart';
 import 'package:flutter_make_music/widget/refresh_header.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../home_controller.dart';
 
@@ -22,46 +24,61 @@ class TabView1 extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return EasyRefresh(
-        header: xRefreshHeader,
-        footer: ClassicalFooter(),
-        onRefresh: () async {
-          await controller.loadData();
-        },
-        controller: controller?.easyRefreshController,
-        child: GetBuilder(
-            init: controller,
-            builder: (HomeController c) {
-              List<BannerItem> bannerList = controller?.model?.bannerList;
-              List<HPlayListItem> playList = controller?.model?.playList;
-              List<HRankItem> rankList = controller?.model?.rankList;
-              return LoadingPage(
-                loading: c?.pageNetState?.loading ?? c?.model == null,
-                error: c?.pageNetState?.error,
-                callback: () {
-                  controller.pageNetState.init();
-                  controller.update();
-                  controller?.easyRefreshController?.callRefresh();
-                },
-                child: Column(
-                  children: [
-                    Container(
-                        margin: EdgeInsets.symmetric(vertical: 8),
-                        height: 150,
-                        child: _buildSwiper(bannerList)),
-                    Container(
-                      child: _buildPlayList(playList),
+    return GetBuilder(
+        init: controller,
+        builder: (HomeController c) {
+          List<BannerItem> bannerList = c?.model?.bannerList;
+          List<HPlayListItem> playList = c?.model?.playList;
+          List<HRankItem> rankList = c?.model?.rankList;
+          return FutureBuilder(
+            future: c.homeFuture,
+            builder: (context, snapshot) {
+              Widget widget;
+              if (snapshot.connectionState == ConnectionState.done) {
+                print(snapshot.hasError);
+                if (snapshot.hasError) {
+                  widget = Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        controller.loadData();
+                      },
+                      child: Text("点击重试"),
                     ),
-                    Container(
-                      child: _buildRank(rankList),
+                  );
+                } else {
+                  widget = SmartRefresher(
+                    header: refreshHeader,
+                    controller: c.refreshController,
+                    onRefresh: c.refreshData,
+                    child: ListView(
+                      children: [
+                        Container(
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            height: 150,
+                            child: _buildSwiper(bannerList)),
+                        Container(
+                          child: _buildPlayList(playList),
+                        ),
+                        Container(
+                          child: _buildRank(rankList),
+                        ),
+                        SizedBox(
+                          height: Constants.barHeight,
+                        )
+                      ],
                     ),
-                    SizedBox(
-                      height: Constants.barHeight,
-                    )
-                  ],
-                ),
-              );
-            }));
+                  );
+                  ;
+                }
+              } else {
+                return Container(
+                  child: Loading(),
+                );
+              }
+              return widget;
+            },
+          );
+        });
   }
 
   // 头部

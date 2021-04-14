@@ -302,7 +302,7 @@ class ResultView extends GetView<SearchController> {
                               children: widgets,
                             ))),
                     SizedBox(
-                      height: Constants.miniPlayerHeight / 2,
+                      height: Constants.miniPlayerHeight,
                     )
                   ],
                 );

@@ -127,7 +127,7 @@ class BuildBottomSheet extends GetView<PlayerService> {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration(milliseconds: 110), () {
+    Future.delayed(Duration(milliseconds: 120), () {
       scrollController.jumpTo(
         (40 * controller.currIndex.value).toDouble(),
       );

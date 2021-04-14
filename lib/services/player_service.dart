@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_make_music/api/app_response.dart';
@@ -170,6 +171,8 @@ class PlayerService extends GetxService {
     loadPlay();
   }
 
+  CancelToken lyricToken;
+
   // 加载歌曲播放
   loadPlay() async {
     // 如果歌曲不为null 且 当前播放歌曲和新的索引歌曲rid相同则 return
@@ -181,7 +184,9 @@ class PlayerService extends GetxService {
     // 赋值当前歌曲
     song.value = playList[currIndex.value];
 
-    //-----TODO：分两次请求导致歌词延迟到达而导致，歌曲和歌词不匹配问题 ----//
+    //-----解决 分两次请求导致歌词延迟到达而导致，歌曲和歌词不匹配问题，使用cancelToken ----//
+    // 切换歌曲时 取消歌词请求
+    lyricToken?.cancel();
 
     Provider.getUri(song.value.rid.toString()).then((res) async {
       if (res.ok) {
@@ -195,7 +200,9 @@ class PlayerService extends GetxService {
       print("加载歌曲错误");
       next(false);
     });
-    Provider.getLyric(song.value.rid.toString()).then((res) {
+    // 创建 取消 token
+    lyricToken = CancelToken();
+    Provider.getLyric(song.value.rid.toString(), lyricToken).then((res) {
       if (res.ok) {
         lyric = Lyric.fromJson(res.data);
       }
