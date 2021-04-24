@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_make_music/api/provider/index.dart';
 import 'package:flutter_make_music/pages/home/bindings.dart';
 import 'package:flutter_make_music/pages/mine/mine_page.dart';
@@ -16,9 +17,12 @@ import 'package:flutter_make_music/utils/dependencyInjection.dart';
 /// TODO: 主题混乱问题未解决！！！！！！！！！！！！
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  SystemChrome.setEnabledSystemUIOverlays(
+      [SystemUiOverlay.bottom, SystemUiOverlay.top]);
+
   // init service
   await DependencyInjection.init();
-  //
 
   // run app
   runApp(MyApp());

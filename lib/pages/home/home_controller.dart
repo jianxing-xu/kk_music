@@ -20,23 +20,22 @@ class HomeController extends GetxController with SingleGetTickerProviderMixin {
         model = HomeModel.fromJson(res.data);
         update();
         return model;
+      } else {
+        return Future.error(res.error.msg);
       }
-    }).catchError((e) {
-      throw "网络错误";
     });
     update();
   }
 
   refreshData() async {
-    try {
-      var res = await Provider.getHomeData();
-      if (res.ok) {
-        model = HomeModel.fromJson(res.data);
-        update();
-        refreshController.refreshCompleted();
-      }
-    } catch (e) {
+    var res = await Provider.getHomeData();
+    if (res.ok) {
+      model = HomeModel.fromJson(res.data);
+      update();
+      refreshController.refreshCompleted();
+    } else {
       refreshController.refreshFailed();
+      return Future.error(res.error.msg);
     }
   }
 

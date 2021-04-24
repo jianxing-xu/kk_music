@@ -16,7 +16,7 @@ class ApiTestController extends GetxController {
     Get.loading();
     try {
       await Future.delayed(Duration(seconds: 1));
-      var appRes = await client.get("https://api.pexels.com/v1/search",
+      var appRes = await client.request("https://api.pexels.com/v1/search",
           queryParameters: {'query': 'cat', 'per_page': 3});
       if (appRes.ok) {
         var data = Pixelbay.fromJson(appRes.data);

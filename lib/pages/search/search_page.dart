@@ -34,7 +34,10 @@ class SearchPage extends StatelessWidget {
                 enabled: true,
                 title: "歌手/歌曲",
                 controller: logic.searchController,
-                onChange: (v) => logic.keyword.value = v,
+                onChange: (String v) => logic.keyword.value = v,
+                tapSuffix: () {
+                  logic.keyword.value = "";
+                },
                 onFocus: logic.onFocus,
               ),
               SizedBox(
@@ -62,80 +65,44 @@ class NormalView extends GetView<SearchController> {
   Widget build(BuildContext context) {
     return Obx(() => ListView(
           children: [
-            Container(
-              height: 40,
-              child: Row(
-                children: [
-                  Container(
-                    child: Text("历史"),
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      height: 30,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(horizontal: 5),
-                            child: buildChip("JayZhou"),
+            controller.historyKeys?.length != 0
+                ? Container(
+                    height: 40,
+                    child: Row(
+                      children: [
+                        Container(
+                          child: Text("历史"),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 5),
+                            height: 30,
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              children: List.generate(
+                                  controller.historyKeys.length, (index) {
+                                var word = controller.historyKeys[index];
+                                return Container(
+                                  alignment: Alignment.center,
+                                  margin: EdgeInsets.symmetric(horizontal: 5),
+                                  child: buildChip("$word"),
+                                );
+                              }),
+                            ),
                           ),
-                          Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(horizontal: 5),
-                            child: buildChip("JayZhou"),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            controller.clearHistory();
+                          },
+                          child: Container(
+                            child: Icon(Icons.delete),
                           ),
-                          Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(horizontal: 5),
-                            child: buildChip("JayZhou"),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(horizontal: 5),
-                            child: buildChip("JayZhou"),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(horizontal: 5),
-                            child: buildChip("JayZhou"),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(horizontal: 5),
-                            child: buildChip("JayZhou"),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(horizontal: 5),
-                            child: buildChip("JayZhou"),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(horizontal: 5),
-                            child: buildChip("JayZhou"),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(horizontal: 5),
-                            child: buildChip("JayZhou"),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(horizontal: 5),
-                            child: buildChip("JayZhou"),
-                          ),
-                        ],
-                      ),
+                        )
+                      ],
                     ),
-                  ),
-                  Container(
-                    child: Icon(Icons.delete),
                   )
-                ],
-              ),
-            ),
+                : SizedBox(),
             Container(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,14 +121,7 @@ class NormalView extends GetView<SearchController> {
                         var item = controller.hotKeys[index];
                         return Container(
                           margin: EdgeInsets.fromLTRB(0, 0, 10, 5),
-                          child: GestureDetector(
-                            onTap: () {
-                              controller.searchKeys.clear();
-                              controller.keyword.value = item;
-                              controller.searchController.text = item;
-                            },
-                            child: buildChip(item),
-                          ),
+                          child: buildChip(item),
                         );
                       },
                     ).toList(),
@@ -174,15 +134,22 @@ class NormalView extends GetView<SearchController> {
   }
 
   Widget buildChip(String label) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-      decoration: BoxDecoration(
-          border: Border.all(color: Get.theme.hoverColor),
-          borderRadius: BorderRadius.circular(10)),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 10,
+    return GestureDetector(
+      onTap: () {
+        controller.searchKeys.clear();
+        controller.keyword.value = label;
+        controller.searchController.text = label;
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+        decoration: BoxDecoration(
+            border: Border.all(color: Get.theme.hoverColor),
+            borderRadius: BorderRadius.circular(10)),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+          ),
         ),
       ),
     );

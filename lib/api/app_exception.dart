@@ -1,92 +1,54 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
 
 // 自定义 App 异常
 class AppException implements Exception {
   // 错误消息
-  final String _message;
-  String get message => _message ?? this.runtimeType.toString();
+  final String _msg;
+  String get msg => _msg ?? this.runtimeType.toString();
 
   // 错误码
   final int _code;
   int get code => _code ?? -1;
 
-  AppException([this._message, this._code]);
+  // 处理普通消息异常
+  AppException([this._msg, this._code]);
 
   String toString() {
-    return "code:$code--message=$message";
+    return "AppExeption { code: $code, msg: $msg}";
   }
 
-  factory AppException.handle(String error) {
-    return UnknowException(error);
+  // 处理异常状态下的Response
+  factory AppException.handleResponse(Response response) {
+    // 如果返回异常对象 data 中有 msg 不然就用 http 失败 msg
+    String msg = response.data['msg'] ?? response.statusMessage;
+    return AppException(msg, response.statusCode);
   }
 
-  factory AppException.handleException(Exception error) {
-    // 判断 是否是Dio中发生的异常，对 Dio 中的异常处理
-    if (error is DioError) {
-      switch (error.type) {
-        case DioErrorType.DEFAULT:
-          if (error.error is SocketException) {
-            // SocketException: Failed host lookup: '***'
-            // (OS Error: No address associated with hostname, errno = 7)
-            return NetworkException(error.error.message);
-          } else {
-            return UnknowException(error.error.message);
-          }
-          break;
-        case DioErrorType.CONNECT_TIMEOUT:
-        case DioErrorType.RECEIVE_TIMEOUT:
-        case DioErrorType.SEND_TIMEOUT:
-          return NetworkException(error.error.message);
-        case DioErrorType.RESPONSE:
-          return HttpException(error.error.message, error.response.statusCode);
-        case DioErrorType.CANCEL:
-          return CancelException(error.error.message);
-          break;
-        default:
-          // 其他情况就作为   “拉取数据异常”
-          return FetchDataException(error.error.message);
-      }
-    } else {
-      // 其他情况就作为   “拉取数据异常”
-      return FetchDataException(error.toString());
+  factory AppException.handleException(DioError e) {
+    AppException exception;
+    switch (e.type) {
+      case DioErrorType.DEFAULT:
+        exception = AppException("网络错误", -1);
+        break;
+      case DioErrorType.CANCEL:
+        exception = AppException("取消请求", -1);
+        break;
+      case DioErrorType.RESPONSE:
+        exception = AppException("响应错误", -1);
+        break;
+      case DioErrorType.SEND_TIMEOUT:
+        exception = AppException("发送超时", -1);
+        break;
+      case DioErrorType.CONNECT_TIMEOUT:
+        exception = AppException("连接超时", -1);
+        break;
+      case DioErrorType.RECEIVE_TIMEOUT:
+        exception = AppException("接收超时", -1);
+        break;
+      default:
+        exception = AppException("未知错误", -1);
+        break;
     }
+    return exception;
   }
-}
-
-// http 异常
-class HttpException extends AppException {
-  HttpException([String message, int code]) : super(message, code);
-}
-
-// 获取数据异常
-class FetchDataException extends AppException {
-  FetchDataException([String message])
-      : super(
-          message,
-        );
-}
-
-// 未知异常
-class UnknowException extends AppException {
-  UnknowException([String message])
-      : super(
-          message,
-        );
-}
-
-// Dio 取消请求异常
-class CancelException extends AppException {
-  CancelException([String message])
-      : super(
-          message,
-        );
-}
-
-// 网络异常
-class NetworkException extends AppException {
-  NetworkException([String message])
-      : super(
-          message,
-        );
 }

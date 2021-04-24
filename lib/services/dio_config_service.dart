@@ -9,13 +9,15 @@ import 'package:path_provider/path_provider.dart';
 class DioConfig {
   static String baseUrl = "https://kuwo.cn";
 
+  static String userBaseUrl = "http://169.254.54.56:4000/api/";
+
   static String proxy = "";
 
   static String cookiesPath;
 
   static List<Interceptor> interceptors = [
-    ResponseInterceptors(),
-    TokenInterceptors()
+    TokenInterceptors(),
+    ResponseInterceptors()
   ];
 
   static init() async {

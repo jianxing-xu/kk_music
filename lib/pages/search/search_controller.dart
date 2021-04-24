@@ -4,11 +4,17 @@ import 'package:flutter_make_music/api/provider/index.dart';
 import 'package:flutter_make_music/model/search_result.dart';
 import 'package:flutter_make_music/utils/pagin_state.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:flutter_make_music/utils/extension/get_extension.dart';
 
 class SearchController extends GetxController
     with SingleGetTickerProviderMixin {
+  final box = Get.find<GetStorage>();
+
   final cancelToken = CancelToken();
+
+  final historyKeys = <String>[].obs;
 
   TabController tabController; // 结果页 tab view 控制器
 
@@ -42,40 +48,67 @@ class SearchController extends GetxController
   // 搜索结果的异步状态
   final resultFuture = Rx<Future>(null);
 
+  saveSearchHistory(String keyword) {
+    if (historyKeys.contains(keyword.trim())) return;
+    if (historyKeys.length >= 20) {
+      historyKeys.removeLast();
+    }
+    historyKeys.insert(0, keyword);
+    box.write("history_keys", historyKeys);
+  }
+
+  clearHistory() {
+    Get.defaultDialog(
+        title: "提示",
+        content: Text("是否清除所有历史"),
+        onCancel: () {},
+        onConfirm: () {
+          historyKeys.clear();
+          box.write("history_keys", []);
+          Get.dismiss();
+        });
+  }
+
   // 初始化搜索数据
   initSearch({String type = "Music"}) {
     if (!isResult.value) isResult.value = true;
     pagingState.reset();
     refreshController.loadComplete();
+
+    saveSearchHistory(keyword.value);
     resultFuture.value = Provider.getSearchResult(
             keyword.value, type, pagingState.page, pagingState.pageNum)
         .then((res) {
-      print("PAGING: $pagingState");
-      if (res.ok) {
-        var data = SearchResult.fromJson(res.data);
-        // 当在歌手列表时，删除附带的歌曲数据
-        if (type == "Artist") {
-          data.list = null;
+      try {
+        if (res.ok) {
+          var data = SearchResult.fromJson(res.data, type);
+          // 当在歌手列表时，删除附带的歌曲数据
+          if (type == "Artist") {
+            data.list = null;
+          }
+          pagingState.total = data.total;
+          result.value = data;
+          return data;
+        } else {
+          print(res.error);
+          return Future.error(res.error.msg);
         }
-        pagingState.total = data.total;
-        result.value = data;
-        return data;
+      } catch (e) {
+        print(e);
+        return Future.error(e);
       }
-    }).catchError((e) {
-      throw e;
     });
   }
 
   // 加载更多数据
   loadMore({String type = "Music"}) async {
-    print(pagingState);
     if (pagingState.isEnd) return refreshController.loadNoData();
     pagingState.nextPage();
     try {
       var res = await Provider.getSearchResult(
           keyword.value, type, pagingState.page, pagingState.pageNum);
       if (res.ok) {
-        var data = SearchResult.fromJson(res.data);
+        var data = SearchResult.fromJson(res.data, type);
         result.update((val) {
           if (type == "Music") {
             val.list.addAll(data.list);
@@ -84,10 +117,12 @@ class SearchController extends GetxController
           }
         });
         refreshController.loadComplete();
+      } else {
+        refreshController.loadFailed();
+        pagingState.page--;
       }
     } catch (e) {
-      refreshController.loadFailed();
-      pagingState.page--;
+      print(e);
     }
   }
 
@@ -98,7 +133,7 @@ class SearchController extends GetxController
       var res = await Provider.getSearchResult(
           keyword.value, type, pagingState.page, pagingState.pageNum);
       if (res.ok) {
-        var data = SearchResult.fromJson(res.data);
+        var data = SearchResult.fromJson(res.data, type);
         result.update((val) {
           if (type == "Music") {
             val.list = data.list;
@@ -107,9 +142,11 @@ class SearchController extends GetxController
           }
         });
         refreshController.refreshCompleted();
+      } else {
+        refreshController.refreshFailed();
       }
     } catch (e) {
-      refreshController.refreshFailed();
+      print(e);
     }
   }
 
@@ -123,9 +160,9 @@ class SearchController extends GetxController
           var item = v.toString().split("\n")[0].split("=")[1];
           searchKeys.add(item);
         });
-      }
+      } else {}
     } catch (e) {
-      print("网络错误");
+      print(e);
     }
   }
 
@@ -142,7 +179,6 @@ class SearchController extends GetxController
       }
     } catch (e) {
       print(e);
-      print("网络错误");
     }
   }
 
@@ -195,6 +231,10 @@ class SearchController extends GetxController
     tabController = TabController(length: 2, vsync: this);
     searchController = TextEditingController();
     result.value = null;
+    var list = box.read("history_keys") ?? [];
+    (list as List).forEach((v) {
+      historyKeys.add(v.toString());
+    });
     super.onInit();
   }
 }

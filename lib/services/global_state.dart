@@ -15,8 +15,6 @@ class GlobalState extends GetxController {
 
   // min 播放器的偏移
   double get miniPlayerOffset {
-    // if (currentRoutePath == '/') {}
-    // return -Constants.barHeight;
     if (currentRoutePath.value == Routes.Player || isOpenBottomSheet.value) {
       return -(Constants.barHeight);
     }

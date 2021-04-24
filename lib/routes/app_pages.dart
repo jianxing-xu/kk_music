@@ -8,7 +8,7 @@ import 'package:flutter_make_music/pages/playlist_detail/playlist_detail_page.da
 import 'package:flutter_make_music/pages/rank/rank_page.dart';
 import 'package:flutter_make_music/pages/rank_detail/rank_detail_page.dart';
 import 'package:flutter_make_music/pages/search/search_page.dart';
-import 'package:flutter_make_music/pages/signin/sign_in_page.dart';
+import 'package:flutter_make_music/pages/signin_or_register/signin_register_page.dart';
 import 'package:flutter_make_music/pages/signout/sign_out_page.dart';
 import 'package:flutter_make_music/pages/singers/singer_detail_page/singer_detail_page.dart';
 import 'package:flutter_make_music/pages/singers/singers_page.dart';
@@ -31,7 +31,6 @@ class AppPage {
     GetPage(name: Routes.Mv, page: () => MvPage()),
     GetPage(name: Routes.MvDetail, page: () => MvDetailPage()),
     GetPage(name: Routes.Player, page: () => Player()),
-    GetPage(name: Routes.SignIn, page: () => SignIn()),
-    GetPage(name: Routes.SignOut, page: () => SignOut()),
+    GetPage(name: Routes.RegisterOrSignin, page: () => RegsiterOrSignin()),
   ];
 }

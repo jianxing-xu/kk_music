@@ -1,14 +1,12 @@
 // 首页第一个tab
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_make_music/model/home_model.dart';
 import 'package:flutter_make_music/pages/home/body/playlist_card.dart';
 import 'package:flutter_make_music/pages/home/body/rank_item_card.dart';
 import 'package:flutter_make_music/routes/app_pages.dart';
 import 'package:flutter_make_music/utils/constants.dart';
 import 'package:flutter_make_music/widget/base/loading.dart';
-import 'package:flutter_make_music/widget/loading_page_widget.dart';
 import 'package:flutter_make_music/widget/refresh_header.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get/get.dart';
@@ -35,7 +33,6 @@ class TabView1 extends GetView<HomeController> {
             builder: (context, snapshot) {
               Widget widget;
               if (snapshot.connectionState == ConnectionState.done) {
-                print(snapshot.hasError);
                 if (snapshot.hasError) {
                   widget = Center(
                     child: ElevatedButton(
@@ -68,7 +65,6 @@ class TabView1 extends GetView<HomeController> {
                       ],
                     ),
                   );
-                  ;
                 }
               } else {
                 return Container(

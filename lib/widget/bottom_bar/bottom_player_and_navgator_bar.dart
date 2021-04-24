@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_make_music/services/global_state.dart';
-import 'package:flutter_make_music/services/player_service.dart';
 import 'package:flutter_make_music/utils/constants.dart';
 import 'package:flutter_make_music/widget/bottom_bar//mini_player.dart';
 import 'package:flutter_make_music/widget/bottom_bar//x_navigation_bar.dart';
@@ -32,16 +31,14 @@ class GlobalPlayer extends StatelessWidget {
                         opacity: 0.8,
                         child: Container(
                           width: Get.width,
-                          height: Constants.barHeight +
-                              (GetPlatform.isAndroid ? 0 : 30),
+                          height: Constants.barHeight,
                           color: Get.theme.primaryColor, // 主题修改延迟
                         ),
                       ),
                     ),
                   )),
               Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: GetPlatform.isAndroid ? 0 : 30),
+                padding: EdgeInsets.symmetric(),
                 child: Column(
                   children: [
                     MiniPlayer(),

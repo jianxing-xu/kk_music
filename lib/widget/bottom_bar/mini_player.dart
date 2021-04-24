@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_make_music/model/song.dart';
 import 'package:flutter_make_music/pages/player/player_page.dart';
-import 'package:flutter_make_music/routes/app_pages.dart';
 import 'package:flutter_make_music/services/player_service.dart';
 import 'package:flutter_make_music/utils/constants.dart';
 import 'package:flutter_make_music/widget/base/loading.dart';

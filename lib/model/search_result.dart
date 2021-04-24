@@ -3,7 +3,7 @@ import 'package:flutter_make_music/model/song.dart';
 class Artist {
   int id;
   int artistFans;
-  String content_type;
+  String contentType;
   String country;
   int isStar;
   int musicNum;
@@ -13,7 +13,7 @@ class Artist {
   Artist(
       {this.id,
       this.artistFans,
-      this.content_type,
+      this.contentType,
       this.country,
       this.isStar,
       this.musicNum,
@@ -23,7 +23,7 @@ class Artist {
   Artist.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     artistFans = json['artistFans'];
-    content_type = json['content_type'];
+    contentType = json['content_type'];
     country = json['country'];
     isStar = json['isStar'];
     musicNum = json['musicNum'];
@@ -35,7 +35,7 @@ class Artist {
     return <String, dynamic>{
       'id': id,
       'artistFans': artistFans,
-      'content_type': content_type,
+      'content_type': contentType,
       'country': country,
       'isStar': isStar,
       'musicNum': musicNum,
@@ -46,7 +46,7 @@ class Artist {
 
   @override
   String toString() {
-    return 'Artist{id: $id, artistFans: $artistFans, content_type: $content_type, country: $country, isStar: $isStar, musicNum: $musicNum, name: $name, pic: $pic}';
+    return 'Artist{id: $id, artistFans: $artistFans, content_type: $contentType, country: $country, isStar: $isStar, musicNum: $musicNum, name: $name, pic: $pic}';
   }
 }
 
@@ -55,13 +55,15 @@ class SearchResult {
   List<Artist> artistList;
   int total;
 
-  SearchResult({this.list, this.total,this.artistList});
+  SearchResult({this.list, this.total, this.artistList});
 
-  SearchResult.fromJson(Map<String, dynamic> json) {
+  SearchResult.fromJson(Map<String, dynamic> json, [String type = "Music"]) {
     list = <Song>[];
-    json['list']?.forEach((v) {
-      list.add(Song.fromJson(v));
-    });
+    if (type == "Music") {
+      json['list']?.forEach((v) {
+        list.add(Song.fromJson(v));
+      });
+    }
     artistList = <Artist>[];
     json['artistList']?.forEach((v) {
       artistList.add(Artist.fromJson(v));
@@ -72,7 +74,7 @@ class SearchResult {
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'list': list.map((e) => e.toJson()).toList(),
-      'total': total.toString()
+      'total': total
     };
   }
 

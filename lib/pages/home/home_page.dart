@@ -4,7 +4,6 @@ import 'package:flutter_make_music/pages/home/body/app_bar.dart';
 import 'package:flutter_make_music/pages/home/body/tab_view1.dart';
 import 'package:flutter_make_music/pages/home/body/tab_view2.dart';
 import 'package:flutter_make_music/pages/home/home_controller.dart';
-import 'package:flutter_make_music/utils/constants.dart';
 import 'package:get/get.dart';
 
 class Home extends StatelessWidget {

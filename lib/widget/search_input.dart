@@ -7,21 +7,28 @@ class SearchInput extends StatelessWidget {
   final String title;
   final bool enabled;
 
-  final ValueChanged onChange;
+  final ValueChanged<String> onChange;
   final TextEditingController controller;
   final ValueChanged<bool> onFocus;
+  final VoidCallback tapSuffix;
 
   final FocusNode _focusNode = FocusNode();
+
+  final iconData = Icons.search.obs;
 
   SearchInput(
       {this.title,
       this.enabled = false,
       this.onChange,
       this.controller,
+      this.tapSuffix,
       this.onFocus}) {
     _focusNode.addListener(() => onFocus(_focusNode.hasFocus));
   }
 
+  setSuffixIcon(IconData icon) {
+    iconData.value = icon;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +42,22 @@ class SearchInput extends StatelessWidget {
               child: TextField(
                 focusNode: _focusNode,
                 controller: controller,
-                onChanged: onChange,
+                onChanged: (v) {
+                  onChange(v);
+                  // TODO: 使用 controller.text = "" 不会触发 onChanged 事件
+                  setSuffixIcon(v.isNotEmpty ? Icons.clear : Icons.search);
+                },
                 enabled: enabled,
                 decoration: InputDecoration(
-                  suffixIcon: Icon(Icons.search),
+                  suffixIcon: Obx(() => InkWell(
+                        onTap: () {
+                          if (iconData.value == Icons.clear) {
+                            controller.text = "";
+                          }
+                          tapSuffix();
+                        },
+                        child: Icon(iconData.value),
+                      )),
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 0, horizontal: 15),
                   fillColor: Get.theme.secondaryHeaderColor,

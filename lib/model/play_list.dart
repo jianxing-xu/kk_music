@@ -23,13 +23,14 @@ class PlayList {
       this.uPic});
 
   PlayList.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+    id = int.parse(json['id'].toString());
     img = json['img'];
     info = json['info'];
-    musicList = json['musicList']?.map((v) => Song.fromJson(v))?.toList();
+    musicList =
+        (json['musicList'] as List)?.map((v) => Song.fromJson(v))?.toList();
     name = json['name'];
     tag = json['tag'];
-    total = json['total'];
+    total = int.parse(json['total'].toString());
     userName = json['userName'];
     uPic = json['uPic'];
   }

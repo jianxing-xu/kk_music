@@ -54,9 +54,9 @@ class RankDetailController extends GetxController {
         pagingState.total = int.parse(bang.num);
         update();
         return bang;
+      } else {
+        return Future.error(res.error.msg);
       }
-    }).catchError((e) {
-      throw "RANK_LIST_REQ_ERROR";
     });
     update();
   }
@@ -65,17 +65,14 @@ class RankDetailController extends GetxController {
   loadMore() async {
     pagingState.nextPage();
     if (pagingState.isEnd) return refreshController.loadNoData();
-    try {
-      var res = await Provider.getRankDetail(id,
-          pn: pagingState.page, rn: pagingState.pageNum);
-      if (res.ok) {
-        var data = BangDetail.fromJson(res.data);
-        bang.musicList.addAll(data.musicList);
-        update();
-
-        refreshController.loadComplete();
-      }
-    } catch (e) {
+    var res = await Provider.getRankDetail(id,
+        pn: pagingState.page, rn: pagingState.pageNum);
+    if (res.ok) {
+      var data = BangDetail.fromJson(res.data);
+      bang.musicList.addAll(data.musicList);
+      update();
+      refreshController.loadComplete();
+    } else {
       refreshController.loadFailed();
       pagingState.page--;
     }
@@ -84,15 +81,13 @@ class RankDetailController extends GetxController {
   // 刷新数据
   refreshData() async {
     pagingState.reset();
-    try {
-      var res = await Provider.getRankDetail(id,
-          pn: pagingState.page, rn: pagingState.pageNum);
-      if (res.ok) {
-        bang = BangDetail.fromJson(res.data);
-        update();
-        refreshController.refreshCompleted();
-      }
-    } catch (e) {
+    var res = await Provider.getRankDetail(id,
+        pn: pagingState.page, rn: pagingState.pageNum);
+    if (res.ok) {
+      bang = BangDetail.fromJson(res.data);
+      update();
+      refreshController.refreshCompleted();
+    } else {
       refreshController.refreshFailed();
     }
   }

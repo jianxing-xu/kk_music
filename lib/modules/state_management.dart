@@ -22,7 +22,6 @@ class StateController extends GetxController {
   @override
   void onClose() {
     super.onClose();
-    print("State Controller Close !");
   }
 }
 

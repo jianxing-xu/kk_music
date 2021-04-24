@@ -9,26 +9,24 @@ abstract class Provider {
 
   // 用于刷新cookie中的kw_token
   static void refreshCookie() {
-    client
-        .get("/url?format=mp3&rid=12312&response=url&type=convert_url3",
-            queryParameters: {'format': 'mp3'}, errorTip: false)
-        .then((value) {});
+    client.request("/url?format=mp3&rid=12312&response=url&type=convert_url3",
+        queryParameters: {'format': 'mp3'}).then((value) {});
   }
 
   /// 获取首页数据
   static Future<AppResponse> getHomeData() async {
-    return client.get("http://m.kuwo.cn/newh5app/api/mobile/v1/home");
+    return client.request("http://m.kuwo.cn/newh5app/api/mobile/v1/home");
   }
 
   /// 获取排行榜
   static Future<AppResponse> getRankList() async {
-    return client.get("/api/www/bang/bang/bangMenu");
+    return client.request("/api/www/bang/bang/bangMenu");
   }
 
   /// 获取排行榜详情
   static Future<AppResponse> getRankDetail(String bangId,
       {int pn = 1, int rn = 30}) async {
-    return client.get("/api/www/bang/bang/musicList",
+    return client.request("/api/www/bang/bang/musicList",
         queryParameters: {'bangId': bangId, 'pn': pn, 'rn': rn});
   }
 
@@ -41,23 +39,23 @@ abstract class Provider {
       'type': 'convert_url3',
       'br': '128kmp3',
       'from': 'web',
-      't': '1616763431316',
+      't': DateTime.now().millisecond,
       'httpsStatus': '1'
     };
-    var res = await client.dio.get('/url', queryParameters: param);
-    return AppResponse.handle(res);
+    return client.request('/url', queryParameters: param);
   }
 
   // 获取歌词
   static Future<AppResponse> getLyric(String rid, CancelToken cancelToken) {
-    return client.get("http://m.kuwo.cn/newh5app/api/mobile/v1/music/info/$rid",
+    return client.request(
+        "http://m.kuwo.cn/newh5app/api/mobile/v1/music/info/$rid",
         cancelToken: cancelToken);
   }
 
   // 搜索建议（为空时，十个热门）
   static Future<AppResponse> getSearchKey(
       [String key = "", CancelToken cancelToken]) {
-    return client.get("/api/www/search/searchKey",
+    return client.request("/api/www/search/searchKey",
         queryParameters: {
           'key': key,
           'httpsStatus': 1,
@@ -73,7 +71,7 @@ abstract class Provider {
   // 搜索音乐 Music Artist
   static Future<AppResponse> getSearchResult(
       [String key = "", String type = "Music", int pn = 1, int rn = 30]) {
-    return client.get("/api/www/search/search${type}BykeyWord",
+    return client.request("/api/www/search/search${type}BykeyWord",
         queryParameters: {'key': key, 'httpsStatus': 1, 'pn': pn, 'rn': rn},
         options: Options(
             headers: {'Host': 'kuwo.cn', 'Referer': 'https://kuwo.cn/'}));
@@ -82,8 +80,8 @@ abstract class Provider {
   // 歌单详情
   static Future<AppResponse> getPlayListDetail(String id,
       [int pn = 1, int rn = 30]) {
-    return client.get("/api/www/playlist/playListInfo",
-        queryParameters: {'pic': id, 'httpsStatus': 1, 'pn': pn, 'rn': rn},
+    return client.request("/api/www/playlist/playListInfo",
+        queryParameters: {'pid': id, 'httpsStatus': 1, 'pn': pn, 'rn': rn},
         options: Options(
             headers: {'Host': 'kuwo.cn', 'Referer': 'https://kuwo.cn/'}));
   }

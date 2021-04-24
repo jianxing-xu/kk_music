@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_make_music/api/app_response.dart';
 import 'package:flutter_make_music/api/provider/index.dart';
 import 'package:flutter_make_music/model/lyric.dart';
 import 'package:flutter_make_music/model/song.dart';
@@ -154,7 +153,6 @@ class PlayerService extends GetxService {
     nextLyricStr.value = "--";
     currentLyricStr.value = "--";
     canOperator = false;
-    print("设置canOprator FALSE");
     currentLien = -1;
     song.value = null;
   }
@@ -197,6 +195,7 @@ class PlayerService extends GetxService {
         isComplete = false;
       }
     }).catchError((e) {
+      print(e);
       print("加载歌曲错误");
       next(false);
     });
