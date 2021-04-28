@@ -24,6 +24,12 @@ class SearchInput extends StatelessWidget {
       this.tapSuffix,
       this.onFocus}) {
     _focusNode.addListener(() => onFocus(_focusNode.hasFocus));
+    controller.addListener(() {
+      if (onChange != null) {
+        onChange(controller.text);
+      }
+      setSuffixIcon(controller.text.isNotEmpty ? Icons.clear : Icons.search);
+    });
   }
 
   setSuffixIcon(IconData icon) {
@@ -42,11 +48,7 @@ class SearchInput extends StatelessWidget {
               child: TextField(
                 focusNode: _focusNode,
                 controller: controller,
-                onChanged: (v) {
-                  onChange(v);
-                  // TODO: 使用 controller.text = "" 不会触发 onChanged 事件
-                  setSuffixIcon(v.isNotEmpty ? Icons.clear : Icons.search);
-                },
+                // onChanged: (v) {},
                 enabled: enabled,
                 decoration: InputDecoration(
                   suffixIcon: Obx(() => InkWell(

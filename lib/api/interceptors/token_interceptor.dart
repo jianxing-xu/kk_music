@@ -12,6 +12,8 @@ class TokenInterceptors extends InterceptorsWrapper {
   onRequest(RequestOptions options) async {
     options.headers['csrf'] = getCSRF();
     options.headers['authorization'] = getAuthorization();
+    options.headers['user-agent'] =
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36";
     print("[Request]: Method: ${options.method}, Uri: ${options.uri}");
     return options;
   }

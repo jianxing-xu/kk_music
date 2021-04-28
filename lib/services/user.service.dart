@@ -1,6 +1,7 @@
 import 'package:flutter_make_music/api/provider/user.dart';
 import 'package:flutter_make_music/model/user.dart';
-import 'package:flutter_make_music/routes/app_pages.dart';
+import 'package:flutter_make_music/pages/signin_or_register/signin_register_page.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
@@ -39,7 +40,7 @@ class UserService extends GetxService {
   }
 
   logout() {
-    user(null);
+    user.value = null;
     isLogin(false);
     box.remove("token");
   }
@@ -48,6 +49,29 @@ class UserService extends GetxService {
     final res = await UserApi.updateInfo(username);
     if (res.ok) {
       return res.data;
+    } else {
+      return Future.error(res.error.msg);
+    }
+  }
+
+  Future toggleFavorite(String rid) async {
+    if (!isLogin.value) {
+      Get.to(RegsiterOrSignin());
+      Fluttertoast.showToast(msg: "请先登录");
+      return Future.error(false);
+    }
+    final res = await UserApi.toggleFavorite(rid);
+    if (res.ok) {
+      user.update((val) {
+        final ids = val.favorites?.split(",") ?? [];
+        if (res.data) {
+          ids.add(rid);
+        } else {
+          ids.remove(rid.toString());
+        }
+        val.favorites = ids.join(",");
+      });
+      return true;
     } else {
       return Future.error(res.error.msg);
     }

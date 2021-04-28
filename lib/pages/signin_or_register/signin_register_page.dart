@@ -17,7 +17,8 @@ class RegsiterOrSignin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    type(Get.arguments['type']);
+    final arguments = Get.arguments ?? {'type': InType.login};
+    type(arguments['type']);
     return Scaffold(
       body: SafeArea(
         child: Container(

@@ -92,7 +92,8 @@ class MiniPlayer extends GetView<PlayerService> {
                       valueColor: AlwaysStoppedAnimation<Color>(
                           Get.theme.highlightColor),
                     )),
-                if (controller?.song?.value?.pic != null)
+                if (controller?.song?.value?.pic != null &&
+                    controller.song.value.pic.isNotEmpty)
                   Container(
                     width: 40,
                     decoration: BoxDecoration(

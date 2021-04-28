@@ -21,15 +21,21 @@ class Song {
       this.songTimeMinutes});
 
   Song.fromJson(Map<String, dynamic> json) {
+    print(json['pic']);
     artist = json['artist'];
-    print(json['artistid'].runtimeType);
-    artistid = int.parse(json['artistid'].toString());
-    duration = int.parse(json['duration'].toString());
+    artistid =
+        json["artistid"] != null ? int.parse("${json['artistid']}") : null;
+    duration =
+        json['duration'] != null ? int.parse("${json['duration']}") : null;
     name = json['name'];
     pic = json['pic'];
     pic120 = json['pic120'];
     releaseDate = json['releaseDate'];
-    rid = int.parse(json['rid'].toString());
+    rid = json['rid'] != null
+        ? int.parse(json['rid'].toString())
+        : json['id'] != null
+            ? int.parse("${json['id']}")
+            : null;
     songTimeMinutes = json['songTimeMinutes'];
   }
 

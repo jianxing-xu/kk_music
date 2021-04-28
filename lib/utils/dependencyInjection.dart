@@ -16,11 +16,10 @@ class DependencyInjection {
     await DioConfig.init();
     // dio_client
     Get.put(DioClient());
+    Get.put(UserService());
     // 播放器状态
     Get.put<PlayerService>(PlayerService());
     // 全局状态
     Get.put(GlobalState(), permanent: true);
-
-    Get.put(UserService());
   }
 }

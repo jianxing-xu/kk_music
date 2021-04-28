@@ -68,7 +68,7 @@ abstract class Provider {
         }));
   }
 
-  // 搜索音乐 Music Artist
+  // 搜索音乐 Music Artist /api/www/search/searchMusicBykeyWord?key=maobuyi
   static Future<AppResponse> getSearchResult(
       [String key = "", String type = "Music", int pn = 1, int rn = 30]) {
     return client.request("/api/www/search/search${type}BykeyWord",

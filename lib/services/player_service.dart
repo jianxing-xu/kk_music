@@ -4,15 +4,18 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_make_music/api/provider/index.dart';
+import 'package:flutter_make_music/api/provider/user.dart';
 import 'package:flutter_make_music/model/lyric.dart';
 import 'package:flutter_make_music/model/song.dart';
 import 'package:flutter_make_music/routes/app_pages.dart';
+import 'package:flutter_make_music/services/user.service.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 
 enum PLAY_MODE { list, random, one, no }
 
 class PlayerService extends GetxService {
+  final userService = Get.find<UserService>();
   AudioPlayer player; // 播放器实例
   PlayerService() {
     player?.stop();
@@ -188,11 +191,21 @@ class PlayerService extends GetxService {
 
     Provider.getUri(song.value.rid.toString()).then((res) async {
       if (res.ok) {
+        // 添加一首歌到数据库
+        UserApi.addSongToDB(song.value);
         var duration = await player.setUrl("${res.data}");
         totalTime.value = duration.inSeconds.toDouble();
         canOperator = true;
         await player.play().catchError((e) {});
         isComplete = false;
+        // 增加听歌总数
+        UserApi.addListenCount().then((res) {
+          if (res.ok) {
+            userService.user.update((val) {
+              val.listenCount = val.listenCount + 1;
+            });
+          }
+        });
       }
     }).catchError((e) {
       print(e);
@@ -305,21 +318,17 @@ class PlayerService extends GetxService {
           break;
         case ProcessingState.loading:
           loading.value = true;
-          print("播放 loading");
           break;
         case ProcessingState.buffering:
           loading.value = true;
-          print("播放 buffering");
           break;
         case ProcessingState.ready:
           loading.value = false;
-          print("播放 ready");
           break;
         case ProcessingState.completed:
           // 此处的complete回调会执行两次，需要用一个变量判断，否则会导致执行两次next()
           if (isComplete) return;
           isComplete = true;
-          print("播放 completed");
           if (playList.length == 1) return seekTime(0);
           //  处理播放完成后时间
           switch (playMode.value) {

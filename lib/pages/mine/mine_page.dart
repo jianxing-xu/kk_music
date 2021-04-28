@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_make_music/api/provider/user.dart';
 import 'package:flutter_make_music/model/user.dart';
 import 'package:flutter_make_music/pages/mine/edit_info/edit_info_page.dart';
+import 'package:flutter_make_music/pages/mine/favorites/favorite_page.dart';
 import 'package:flutter_make_music/pages/signin_or_register/signin_register_page.dart';
 import 'package:flutter_make_music/routes/app_pages.dart';
 import 'package:flutter_make_music/services/global_state.dart';
 import 'package:flutter_make_music/services/user.service.dart';
+import 'package:flutter_make_music/widget/auth_page.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:flutter_make_music/utils/extension/get_extension.dart';
 
 class Mine extends StatelessWidget {
   final controller = Get.find<GlobalState>();
   final userService = Get.find<UserService>();
+  final playlistName = "".obs;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +52,22 @@ class Mine extends StatelessWidget {
         : NetworkImage(user.avatar);
     String username = user?.username ?? "";
     Widget title = userService.isLogin.value
-        ? Text(username)
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                username,
+                style: TextStyle(fontSize: 18),
+              ),
+              SizedBox(
+                height: 2,
+              ),
+              Text(
+                "一共听了${user.listenCount}首歌了！",
+                style: TextStyle(fontSize: 10, color: Get.theme.highlightColor),
+              )
+            ],
+          )
         : GestureDetector(
             onTap: () => Get.toNamed(Routes.RegisterOrSignin,
                 arguments: {'type': InType.login}),
@@ -112,16 +133,23 @@ class Mine extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Column(
-            children: [
-              Icon(
-                Icons.favorite,
-                color: Get.theme.highlightColor,
-                size: 25,
-              ),
-              Text("喜欢"),
-              Text("${user?.favoriteCount ?? 0}")
-            ],
+          GestureDetector(
+            onTap: () {
+              Get.to(AuthPage(
+                child: FavoritesPage(),
+              ));
+            },
+            child: Column(
+              children: [
+                Icon(
+                  Icons.favorite,
+                  color: Get.theme.highlightColor,
+                  size: 25,
+                ),
+                Text("喜欢"),
+                Text("${user?.favoriteCount ?? 0}")
+              ],
+            ),
           ),
           Column(
             children: [
@@ -162,18 +190,53 @@ class Mine extends StatelessWidget {
         children: [
           Text("自建歌单 ${playlist?.length ?? 0}"),
           Expanded(child: SizedBox()),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text("新建"),
-              SizedBox(
-                width: 2,
-              ),
-              Icon(
-                Icons.add_box_sharp,
-                color: Get.theme.highlightColor,
-              )
-            ],
+          GestureDetector(
+            onTap: () {
+              Get.defaultDialog(
+                  title: "新建歌单",
+                  onConfirm: () {
+                    if (playlistName.trim().isEmpty) return;
+                    UserApi.createPlaylist(playlistName.value).then((res) {
+                      if (res.ok) {
+                        final playlist = MyPlaylist.fromJson(res.data);
+                        userService.user.update((val) {
+                          val.playList.add(playlist);
+                        });
+                        Get.back();
+                      } else {
+                        Fluttertoast.showToast(msg: "${res.error.msg}");
+                      }
+                    });
+                  },
+                  onCancel: () {},
+                  content: Column(
+                    children: [
+                      FractionallySizedBox(
+                        widthFactor: 0.6,
+                        child: TextField(
+                          onChanged: (v) => playlistName.value = v,
+                          decoration: InputDecoration(
+                            hintText: "歌单名",
+                            hintStyle: TextStyle(color: Get.theme.hoverColor),
+                          ),
+                        ),
+                      )
+                    ],
+                  ));
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("新建"),
+                SizedBox(
+                  width: 2,
+                ),
+                Icon(
+                  Icons.add_box_sharp,
+                  color: Get.theme.highlightColor,
+                )
+              ],
+            ),
           ),
           SizedBox(
             width: 5,

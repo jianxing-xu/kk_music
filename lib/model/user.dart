@@ -1,10 +1,13 @@
-class MySong {
+import 'package:flutter_make_music/model/song.dart';
+
+class MySong extends Song {
   int id;
   String name;
   String artist;
   String pic;
   DateTime createAt;
   DateTime updateAt;
+  int get rid => id;
   MySong(
       {this.id,
       this.name,
@@ -91,6 +94,7 @@ class User {
   }
 
   int get favoriteCount {
+    if (favorites.isEmpty) return 0;
     return favorites?.split(",")?.length ?? 0;
   }
 
@@ -102,6 +106,7 @@ class User {
     id = json['id'];
     username = json['username'];
     avatar = json['avatar'];
+    favorites = json['favorites'];
     listenCount = json['listenCount'];
     recentPlay = json['recentPlay'];
     playList = (json['playList'] as List)
