@@ -48,7 +48,7 @@ class MyPlaylist {
   String info;
   DateTime createAt;
   DateTime updateAt;
-  List<MySong> musicList;
+  List<Song> musicList;
   MyPlaylist(
       {this.id,
       this.name,
@@ -68,7 +68,7 @@ class MyPlaylist {
     createAt = DateTime.parse(json['createAt']);
     updateAt = DateTime.parse(json['updateAt']);
     musicList =
-        (json['musicList'] as List)?.map((e) => MySong.fromJson(e))?.toList() ??
+        (json['musicList'] as List)?.map((e) => Song.fromJson(e))?.toList() ??
             [];
   }
 

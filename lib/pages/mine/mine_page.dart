@@ -3,6 +3,7 @@ import 'package:flutter_make_music/api/provider/user.dart';
 import 'package:flutter_make_music/model/user.dart';
 import 'package:flutter_make_music/pages/mine/edit_info/edit_info_page.dart';
 import 'package:flutter_make_music/pages/mine/favorites/favorite_page.dart';
+import 'package:flutter_make_music/pages/mine/my_playlist_detail/my_playlist_detail.dart';
 import 'package:flutter_make_music/pages/signin_or_register/signin_register_page.dart';
 import 'package:flutter_make_music/routes/app_pages.dart';
 import 'package:flutter_make_music/services/global_state.dart';
@@ -135,9 +136,9 @@ class Mine extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () {
-              Get.to(AuthPage(
-                child: FavoritesPage(),
-              ));
+              Get.to(() => AuthPage(
+                    child: FavoritesPage(),
+                  ));
             },
             child: Column(
               children: [
@@ -151,27 +152,19 @@ class Mine extends StatelessWidget {
               ],
             ),
           ),
-          Column(
-            children: [
-              Icon(
-                Icons.playlist_play_sharp,
-                color: Get.theme.highlightColor,
-                size: 25,
-              ),
-              Text("歌单"),
-              Text("${user?.playlistCount ?? 0}")
-            ],
-          ),
-          Column(
-            children: [
-              Icon(
-                Icons.play_arrow,
-                color: Get.theme.highlightColor,
-                size: 25,
-              ),
-              Text("最近听歌"),
-              Text("${user?.recentPlayCount ?? 0}")
-            ],
+          GestureDetector(
+            onTap: () {},
+            child: Column(
+              children: [
+                Icon(
+                  Icons.play_arrow,
+                  color: Get.theme.highlightColor,
+                  size: 25,
+                ),
+                Text("最近听歌"),
+                Text("${user?.recentPlayCount ?? 0}")
+              ],
+            ),
           )
         ],
       ),
@@ -284,24 +277,28 @@ class Mine extends StatelessWidget {
             "assets/images/album.png",
             fit: BoxFit.contain,
           );
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 120,
-          height: 120,
-          child: pic,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Get.theme.backgroundColor),
-        ),
-        SizedBox(
-          height: 2,
-        ),
-        Text("${playlist.name}")
-      ],
+    return GestureDetector(
+      onTap: () =>
+          Get.to(() => MyPlaylistDetailPage(), arguments: {'id': playlist.id}),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 120,
+            height: 120,
+            child: pic,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Get.theme.backgroundColor),
+          ),
+          SizedBox(
+            height: 2,
+          ),
+          Text("${playlist.name}")
+        ],
+      ),
     );
   }
 }

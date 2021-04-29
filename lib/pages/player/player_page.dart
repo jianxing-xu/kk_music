@@ -20,7 +20,6 @@ class Player extends StatelessWidget {
 
       final isPic =
           service.song.value?.pic != null && service.song.value.pic.isNotEmpty;
-      print("BIG_PIC: ISPIC $isPic  URL: ${service.song.value?.pic}");
       return Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -90,18 +89,15 @@ class Player extends StatelessWidget {
                   activeColor: Get.theme.highlightColor,
                   onChangeStart: (v) {
                     if (!service.canOperator) return;
-                    print("START");
                     service.isTouch = true;
                   },
                   onChangeEnd: (v) {
                     if (!service.canOperator) return;
-                    print("END : $v");
                     service.isTouch = false;
                     service.seekTime((service.totalTime * v).toInt());
                   },
                   onChanged: (v) {
                     if (!service.canOperator) return;
-                    print("CH:ANGE");
                     if (service.song.value == null) return;
                     service.percent.value = v;
                     service.currentTime.value =

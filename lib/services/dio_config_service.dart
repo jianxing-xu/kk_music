@@ -9,7 +9,7 @@ import 'package:path_provider/path_provider.dart';
 class DioConfig {
   static String baseUrl = "https://kuwo.cn";
 
-  static String userBaseUrl = "http://169.254.21.188:4000/api/";
+  static String userBaseUrl = "http://169.254.37.128:4000/api/";
 
   static String proxy = "";
 

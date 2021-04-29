@@ -21,27 +21,28 @@ class FavoritesPage extends StatelessWidget {
           actions: [
             GestureDetector(
               onTap: () {
-                Get.to(AddToCollectionPage(
-                  action: (songs) async {
-                    final ids =
-                        songs?.map((e) => e.rid)?.toList()?.join(",") ?? "";
-                    final addToDB = UserApi.addMulSongToDB(songs);
-                    final addToFavorite = UserApi.favoriteMulSong(ids);
-                    return Future.wait([addToDB, addToFavorite]).then((list) {
-                      if ((list[0].ok && list[1].ok)) {
-                        controller.userService.user.update((user) {
-                          final s = Set();
-                          s.addAll(user.favorites.split(","));
-                          s.addAll(ids.split(","));
-                          user.favorites = s.toList().join(",");
+                Get.to(() => AddToCollectionPage(
+                      action: (songs) async {
+                        final ids =
+                            songs?.map((e) => e.rid)?.toList()?.join(",") ?? "";
+                        final addToDB = UserApi.addMulSongToDB(songs);
+                        final addToFavorite = UserApi.favoriteMulSong(ids);
+                        return Future.wait([addToDB, addToFavorite])
+                            .then((list) {
+                          if ((list[0].ok && list[1].ok)) {
+                            controller.userService.user.update((user) {
+                              final s = Set();
+                              s.addAll(user.favorites.split(","));
+                              s.addAll(ids.split(","));
+                              user.favorites = s.toList().join(",");
+                            });
+                            return true;
+                          } else {
+                            return Future.error(false);
+                          }
                         });
-                        return true;
-                      } else {
-                        return Future.error(false);
-                      }
-                    });
-                  },
-                ));
+                      },
+                    ));
               },
               child: Icon(Icons.add),
             )

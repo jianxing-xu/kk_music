@@ -72,4 +72,20 @@ class UserApi {
         .toList();
     return client.reqUsr("/song/addMulSong", method: "POST", data: data);
   }
+
+  // 查找歌单详情
+  static Future<AppResponse> findPlaylistInfo(int id) {
+    return client.reqUsr("/playlist/findById/$id");
+  }
+
+  // 删除歌单中多个歌曲addToPlaylist
+  static Future<AppResponse> removeSongForPlaylist(int id, String ids) {
+    return client.reqUsr("/playlist/removeForPlaylist/$id",
+        method: "POST", queryParameters: {'ids': ids});
+  }
+
+  static Future<AppResponse> addSongToPlaylist(int id, String ids) {
+    return client.reqUsr("/playlist/addToPlaylist/$id",
+        method: "POST", queryParameters: {'ids': ids});
+  }
 }

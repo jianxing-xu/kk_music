@@ -141,7 +141,6 @@ class PlayerService extends GetxService {
   // 跳转到指定时间
   seekTime(int seconds) async {
     if (song == null) return;
-    print("SEEK_TIME");
     await player.seek(Duration(seconds: seconds));
   }
 
@@ -225,7 +224,9 @@ class PlayerService extends GetxService {
 
   // 下一首歌
   next([bool check = true]) async {
-    if (check) if (!canOperator) return;
+    if (check) if (!canOperator) {
+      return print("CAN_OPERRATOR FALSE");
+    }
     if (playMode.value == PLAY_MODE.one) return seekTime(0);
     if (playMode.value == PLAY_MODE.random) {
       randomIndex();
@@ -235,7 +236,6 @@ class PlayerService extends GetxService {
       } else {
         currIndex.value++;
       }
-      print("NEXT_INDEX: ${currIndex.value}");
     }
     loadPlay();
   }

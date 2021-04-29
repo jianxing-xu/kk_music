@@ -115,6 +115,7 @@ class AddToCollectionPage extends StatelessWidget {
                           Fluttertoast.showToast(msg: "操作失败");
                         }).whenComplete(() {
                           Get.dismiss();
+                          Get.back();
                         });
                       },
                       child: Text("完成"),
