@@ -85,4 +85,10 @@ abstract class Provider {
         options: Options(
             headers: {'Host': 'kuwo.cn', 'Referer': 'https://kuwo.cn/'}));
   }
+
+  static Future<AppResponse> getAllPlayList(
+      [int pn = 1, int rn = 30, String order = "hot"]) {
+    return client.request("/api/www/classify/playlist/getRcmPlayList",
+        queryParameters: {'pn': pn, 'rn': rn, 'order': order, 'httpStatus': 1});
+  }
 }

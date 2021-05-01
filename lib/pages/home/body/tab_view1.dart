@@ -111,6 +111,7 @@ class TabView1 extends GetView<HomeController> {
   Widget _buildSwiper(List<BannerItem> bannerList) {
     return Swiper(
       loop: true,
+      autoplay: true,
       scale: 0.95,
       viewportFraction: 0.9,
       itemCount: bannerList?.length ?? 0,
@@ -135,12 +136,18 @@ class TabView1 extends GetView<HomeController> {
     for (int i = 0; i < playList.length; i++) {
       var item = playList[i];
       if (i <= 2) {
-        items1.add(PlayListCardWidget(
-          playListItem: item,
+        items1.add(Container(
+          width: (Get.width - Constants.pagePadding * 2) / 3 - 10,
+          child: PlayListCardWidget(
+            playListItem: item,
+          ),
         ));
       } else {
-        items2.add(PlayListCardWidget(
-          playListItem: item,
+        items2.add(Container(
+          width: (Get.width - Constants.pagePadding * 2) / 3 - 10,
+          child: PlayListCardWidget(
+            playListItem: item,
+          ),
         ));
       }
     }

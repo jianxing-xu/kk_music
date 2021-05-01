@@ -43,8 +43,8 @@ class BangModel {
   BangModel.fromJson(List<dynamic> data) {
     bangMenu = <BangType>[];
     if (data != null) {
-      (data as List<BangType>).forEach((v) {
-        bangMenu.add(v);
+      (data)?.forEach((v) {
+        bangMenu.add(BangType.fromJson(v));
       });
     }
   }
@@ -72,8 +72,8 @@ class BangType {
     name = json["name"];
     list = <BangItem>[];
     if (json['list'] != null) {
-      (json['list'] as List<BangItem>).forEach((bang) {
-        list.add(bang);
+      (json['list'] as List).forEach((bang) {
+        list.add(BangItem.fromJson(bang));
       });
     }
   }

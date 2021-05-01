@@ -4,6 +4,7 @@ import 'package:flutter_make_music/model/song.dart';
 import 'package:flutter_make_music/model/user.dart';
 import 'package:flutter_make_music/pages/add_to_collection/add_to_collection_page.dart';
 import 'package:flutter_make_music/services/player_service.dart';
+import 'package:flutter_make_music/services/user.service.dart';
 import 'package:flutter_make_music/widget/base/loading.dart';
 import 'package:flutter_make_music/widget/refresh_header.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_make_music/utils/extension/get_extension.dart';
 
 class MyPlaylistController extends GetxController {
   int id;
+  final userService = Get.find<UserService>();
   Rx<Future> future = Rx<Future>(Future.sync(() => null));
   Rx<MyPlaylist> playlist = Rx<MyPlaylist>(null);
   Rx<List<Song>> selected = Rx<List<Song>>([]);
@@ -65,6 +67,13 @@ class MyPlaylistController extends GetxController {
           if (res.ok && res2.ok) {
             playlist.update((val) {
               val.musicList.addAll(list);
+              final index = userService.user.value.playList
+                  .indexWhere((element) => element.id == val.id);
+              userService.user.update((val) {
+                if (index != -1) {
+                  val.playList[index].totalCount += list.length;
+                }
+              });
             });
             return res.ok && res2.ok;
           } else {
@@ -98,6 +107,7 @@ class MyPlaylistController extends GetxController {
 class MyPlaylistDetailPage extends StatelessWidget {
   final controlelr = Get.put(MyPlaylistController());
   final player = Get.find<PlayerService>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -175,7 +185,7 @@ class MyPlaylistDetailPage extends StatelessWidget {
                               final song = data.musicList[index];
                               return Obx(() => ListTile(
                                     onTap: () {
-                                      if(controlelr.isEdit.value) return;
+                                      if (controlelr.isEdit.value) return;
                                       player.setPlayList(data.musicList);
                                       player.setCurrentIndex(index);
                                     },

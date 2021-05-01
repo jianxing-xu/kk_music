@@ -27,7 +27,7 @@ class PlayerService extends GetxService {
 
   final loading = false.obs; // 歌曲加载状态
 
-  final playMode = PLAY_MODE.random.obs; // 播放模式
+  final playMode = PLAY_MODE.list.obs; // 播放模式
 
   final totalTime = 0.0.obs; // 总时间
 
@@ -236,6 +236,10 @@ class PlayerService extends GetxService {
       } else {
         currIndex.value++;
       }
+    }
+    // 在随机播放情况下 解决下一首歌如果和当前播放歌曲相同，则跳过直接下一首歌
+    if (song.value.rid == playList[currIndex.value]?.rid) {
+      return next();
     }
     loadPlay();
   }

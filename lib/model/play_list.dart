@@ -1,4 +1,22 @@
+import 'package:flutter_make_music/model/home_model.dart';
 import 'package:flutter_make_music/model/song.dart';
+
+class PlayListAll {
+  List<HPlayListItem> data;
+  int pn;
+  int rn;
+  int total;
+  PlayListAll({this.data, this.pn, this.rn, this.total});
+  PlayListAll.fromJson(Map<String, dynamic> json) {
+    data = (json['data'] as List)
+            ?.map((e) => HPlayListItem.fromJson(e))
+            ?.toList() ??
+        [];
+    pn = json['pn'];
+    rn = json['rn'];
+    total = json['total'];
+  }
+}
 
 class PlayList {
   int id;

@@ -37,7 +37,7 @@ class RankItemCardWidget extends StatelessWidget {
       songList.add(Container(
         margin: EdgeInsets.only(bottom: j == rankItem.list.length ? 0 : 12),
         child: Text(
-          "$j.${song.name} - ${song.artistName}",
+          "${j+1}. ${song.name} - ${song.artistName}",
           style: TextStyle(fontSize: 10, color: Get.theme.hoverColor),
           overflow: TextOverflow.ellipsis,
         ),

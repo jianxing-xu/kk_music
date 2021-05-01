@@ -4,6 +4,7 @@ import 'package:flutter_make_music/model/user.dart';
 import 'package:flutter_make_music/pages/mine/edit_info/edit_info_page.dart';
 import 'package:flutter_make_music/pages/mine/favorites/favorite_page.dart';
 import 'package:flutter_make_music/pages/mine/my_playlist_detail/my_playlist_detail.dart';
+import 'package:flutter_make_music/pages/mine/my_playlist_list/my_playlist_page.dart';
 import 'package:flutter_make_music/pages/signin_or_register/signin_register_page.dart';
 import 'package:flutter_make_music/routes/app_pages.dart';
 import 'package:flutter_make_music/services/global_state.dart';
@@ -234,15 +235,22 @@ class Mine extends StatelessWidget {
           SizedBox(
             width: 5,
           ),
-          Row(
-            children: [
-              Text("更多"),
-              Icon(
-                Icons.arrow_forward_ios_sharp,
-                size: 12,
-                color: Get.theme.highlightColor,
-              )
-            ],
+          GestureDetector(
+            onTap: () {
+              Get.to(() => AuthPage(
+                child: MyPlaylistPage(),
+              ));
+            },
+            child: Row(
+              children: [
+                Text("更多"),
+                Icon(
+                  Icons.arrow_forward_ios_sharp,
+                  size: 12,
+                  color: Get.theme.highlightColor,
+                )
+              ],
+            ),
           )
         ],
       ),

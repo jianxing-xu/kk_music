@@ -13,8 +13,9 @@ class HomeModel {
     playList = (json["playlist_list"] as List)
         ?.map((e) => HPlayListItem.fromJson(e))
         ?.toList();
-    rankList =
-        (json["rank_list"] as List)?.map((e) => HRankItem.fromJson(e))?.toList();
+    rankList = (json["rank_list"] as List)
+        ?.map((e) => HRankItem.fromJson(e))
+        ?.toList();
   }
 
   Map<String, dynamic> toJson() {
@@ -89,12 +90,13 @@ class HPlayListItem {
   String countPlay;
   String pic;
 
-  HPlayListItem({this.id, this.name, this.artistName, this.countPlay, this.pic});
+  HPlayListItem(
+      {this.id, this.name, this.artistName, this.countPlay, this.pic});
 
   HPlayListItem.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    pic = json["pic"];
-    countPlay = json["count_play"];
+    pic = json["pic"] ?? json['img'];
+    countPlay = json["count_play"] ?? json['listencnt'];
     name = json['name'];
     artistName = json["artist_name"];
   }

@@ -22,7 +22,7 @@ class PlayListCardWidget extends StatelessWidget {
       },
       child: Container(
         margin: EdgeInsets.only(bottom: 10),
-        width: (Get.width - Constants.pagePadding * 2) / 3 - 10,
+        // width: (Get.width - Constants.pagePadding * 2) / 3 - 10,
         child: Column(
           children: [
             // 歌单卡片图片
@@ -33,8 +33,8 @@ class PlayListCardWidget extends StatelessWidget {
               child: Stack(
                 children: [
                   Container(
-                    width: 100,
-                    height: 100,
+                    // width: 100,
+                    // height: 100,
                     child: FadeInImage(
                       image: NetworkImage("${playListItem.pic}"),
                       fit: BoxFit.cover,

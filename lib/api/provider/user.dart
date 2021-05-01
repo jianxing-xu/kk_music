@@ -88,4 +88,12 @@ class UserApi {
     return client.reqUsr("/playlist/addToPlaylist/$id",
         method: "POST", queryParameters: {'ids': ids});
   }
+
+  static Future<AppResponse> findAllPlaylist() {
+    return client.reqUsr("/playlist/findAllByUser");
+  }
+
+  static Future<AppResponse> removeMulPlaylist(String ids) {
+    return client.reqUsr("/playlist/removeMul/$ids",method: "POST");
+  }
 }
