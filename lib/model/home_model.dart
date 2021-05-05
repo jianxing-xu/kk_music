@@ -1,4 +1,3 @@
-// TODO: 下一个任务是，完善模型--首页UI--接口完善--底部美化+播放页切换--播放器实现--用户模块--用户接口--搜索页UI...
 class HomeModel {
   List<BannerItem> bannerList;
   List<HPlayListItem> playList;

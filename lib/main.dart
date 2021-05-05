@@ -14,7 +14,6 @@ import 'package:flutter_make_music/routes/app_pages.dart';
 import 'package:flutter_make_music/lang/translation_service.dart';
 import 'package:flutter_make_music/utils/dependencyInjection.dart';
 
-/// TODO: 主题混乱问题未解决！！！！！！！！！！！！
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

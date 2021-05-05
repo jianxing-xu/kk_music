@@ -4,6 +4,9 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter_make_music/api/app_response.dart';
 import 'package:flutter_make_music/services/dio_config_service.dart';
+import 'package:flutter_make_music/services/user.service.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/instance_manager.dart';
 
 const _defaultConnectTimeout = Duration.millisecondsPerMinute;
 const _defaultSendTimeout = Duration.millisecondsPerMinute;
@@ -43,6 +46,8 @@ class DioX with DioMixin implements Dio {
 class DioClient {
   DioX get d1 => DioX.d1;
   DioX get d2 => DioX.d2;
+
+  final userService = Get.find<UserService>();
 
   Future<AppResponse> request(String url,
       {String method = "GET",
@@ -87,6 +92,10 @@ class DioClient {
           options: options);
       return AppResponse.handle(res);
     } on DioError catch (e) {
+      if (e.response.statusCode == 403) {
+        Fluttertoast.showToast(msg: "登录过期,请重新登录！");
+        userService.logout();
+      }
       return AppResponse.errorExp(e: e, res: e.response);
     }
   }

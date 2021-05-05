@@ -28,7 +28,7 @@ class SearchController extends GetxController
 
   final searchKeys = <String>[].obs; // 推荐词
 
-  final Rx<SearchResult> result = Rx<SearchResult>(); // 搜索结果
+  final Rx<SearchResult> result = Rx<SearchResult>(null); // 搜索结果
 
   final isResult = false.obs; // 是否显示搜索结果页面
 
@@ -168,7 +168,6 @@ class SearchController extends GetxController
 
   // 加载热门搜索词
   loadHotKeys() async {
-    // TODO: 加载热搜词的loading
     try {
       var res = await Provider.getSearchKey("");
       if (res.ok) {

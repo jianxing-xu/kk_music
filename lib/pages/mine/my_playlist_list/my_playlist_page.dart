@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_make_music/api/provider/user.dart';
 import 'package:flutter_make_music/model/user.dart';
+import 'package:flutter_make_music/pages/mine/my_playlist_detail/my_playlist_detail.dart';
 import 'package:flutter_make_music/services/user.service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -19,10 +20,10 @@ class MyPlaylistPage extends StatelessWidget {
     Get.loading();
     UserApi.removeMulPlaylist(idsStr).then((res) {
       userService.user.update((val) {
-        if(res.ok) {
+        if (res.ok) {
           val.playList.removeWhere((v) => ids.contains(v.id));
           Fluttertoast.showToast(msg: "删除成功！");
-        }else {
+        } else {
           Fluttertoast.showToast(msg: "删除失败！");
         }
         Get.dismiss();
@@ -43,16 +44,21 @@ class MyPlaylistPage extends StatelessWidget {
           Expanded(child: SizedBox()),
         ];
         final List<Widget> widgets = [
-          Row(
-            children: rowChildren,
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 3),
+            child: Row(
+              children: rowChildren,
+            ),
           ),
         ];
         if (isEdit.value) {
           rowChildren.addAll([
-            selected.length != 0 ? GestureDetector(
-              child: Text("删除"),
-              onTap: () => removeSelected(),
-            ) : SizedBox(),
+            selected.length != 0
+                ? GestureDetector(
+                    child: Text("删除"),
+                    onTap: () => removeSelected(),
+                  )
+                : SizedBox(),
             SizedBox(
               width: 15,
             ),
@@ -116,6 +122,7 @@ class MyPlaylistPage extends StatelessWidget {
           widgets.add(_buildCard(item));
         });
         return ListView(
+          padding: EdgeInsets.symmetric(horizontal: 8),
           children: widgets,
         );
       }),
@@ -126,9 +133,16 @@ class MyPlaylistPage extends StatelessWidget {
     final index = selected.indexWhere((v) => v.id == playlist.id);
     final checked = index != -1;
     return ListTile(
+      onTap: () {
+        Get.to(() => MyPlaylistDetailPage(), arguments: {'id': playlist.id});
+      },
       contentPadding: EdgeInsets.zero,
-      title: Text("${playlist.name}"),
-      subtitle: Text("${playlist.totalCount} 首歌"),
+      title: Text(
+        "${playlist.name}",
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle:
+          Text("${playlist.totalCount} 首歌", overflow: TextOverflow.ellipsis),
       trailing: Icon(Icons.arrow_forward_ios),
       leading: isEdit.value
           ? Checkbox(

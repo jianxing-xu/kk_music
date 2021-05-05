@@ -1,6 +1,5 @@
 import 'package:flutter_make_music/api/provider/user.dart';
 import 'package:flutter_make_music/model/song.dart';
-import 'package:flutter_make_music/model/user.dart';
 import 'package:flutter_make_music/services/user.service.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';

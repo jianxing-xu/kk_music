@@ -87,7 +87,7 @@ class PlayListPage extends StatelessWidget {
                 ChoiceChip(
                   label: Text("热门"),
                   selected: type.value == true,
-                  onSelected: (bool b) => type.toggle(),
+                  onSelected: (bool b) => type(true),
                 ),
                 SizedBox(
                   width: 3,
@@ -95,7 +95,10 @@ class PlayListPage extends StatelessWidget {
                 ChoiceChip(
                     label: Text("最新"),
                     selected: type.value == false,
-                    onSelected: (bool b) => type.toggle())
+                    onSelected: (bool b) => type(false)),
+                SizedBox(
+                  width: 15,
+                )
               ],
             );
           })
@@ -127,12 +130,13 @@ class PlayListPage extends StatelessWidget {
                           onRefresh: () => controller.loadData(true),
                           onLoading: controller.loadMore,
                           child: GridView.builder(
+                            padding: EdgeInsets.symmetric(horizontal: 8),
                               itemCount: data.data?.length ?? 0,
                               gridDelegate:
                                   SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 3,
-                                      crossAxisSpacing: 10,
-                                      childAspectRatio: 1 / 1.45,
+                                      crossAxisSpacing: 8,
+                                      childAspectRatio: 1 / 1.48,
                                       mainAxisSpacing: 4),
                               itemBuilder: (c, index) {
                                 final item = data?.data[index];

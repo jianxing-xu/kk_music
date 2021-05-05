@@ -133,12 +133,6 @@ class MyPlaylistDetailPage extends StatelessWidget {
                 ];
               } else {
                 widgets = [
-                  GestureDetector(
-                      child: Icon(Icons.settings),
-                      onTap: () => isEdit.toggle()),
-                  SizedBox(
-                    width: 5,
-                  ),
                   InkWell(
                       child: Icon(Icons.add),
                       onTap: () {
@@ -147,11 +141,20 @@ class MyPlaylistDetailPage extends StatelessWidget {
                                 return controlelr.addToPlaylist(data);
                               },
                             ));
-                      })
+                      }),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  GestureDetector(
+                      child: Icon(Icons.format_list_bulleted_sharp),
+                      onTap: () => isEdit.toggle()),
                 ];
               }
               return Row(children: widgets);
-            })
+            }),
+            SizedBox(
+              width: 15,
+            )
           ],
         ),
         body: Obx(() {

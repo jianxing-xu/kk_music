@@ -12,7 +12,6 @@ import 'package:flutter_make_music/services/user.service.dart';
 import 'package:flutter_make_music/widget/auth_page.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:flutter_make_music/utils/extension/get_extension.dart';
 
 class Mine extends StatelessWidget {
   final controller = Get.find<GlobalState>();
@@ -186,6 +185,9 @@ class Mine extends StatelessWidget {
           Expanded(child: SizedBox()),
           GestureDetector(
             onTap: () {
+              if (!userService.isLogin.value) {
+                return Get.toNamed(Routes.RegisterOrSignin);
+              }
               Get.defaultDialog(
                   title: "新建歌单",
                   onConfirm: () {
@@ -196,20 +198,26 @@ class Mine extends StatelessWidget {
                         userService.user.update((val) {
                           val.playList.add(playlist);
                         });
+                        playlistName.value = "";
                         Get.back();
                       } else {
                         Fluttertoast.showToast(msg: "${res.error.msg}");
                       }
                     });
                   },
-                  onCancel: () {},
+                  onCancel: () {
+                    playlistName.value = "";
+                  },
                   content: Column(
                     children: [
                       FractionallySizedBox(
                         widthFactor: 0.6,
                         child: TextField(
                           onChanged: (v) => playlistName.value = v,
+                          maxLength: 10,
                           decoration: InputDecoration(
+                            counter: Obx(
+                                () => Text("${playlistName.value.length}/10")),
                             hintText: "歌单名",
                             hintStyle: TextStyle(color: Get.theme.hoverColor),
                           ),
@@ -218,18 +226,21 @@ class Mine extends StatelessWidget {
                     ],
                   ));
             },
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("新建"),
-                SizedBox(
-                  width: 2,
-                ),
-                Icon(
-                  Icons.add_box_sharp,
-                  color: Get.theme.highlightColor,
-                )
-              ],
+            child: Container(
+              color: Colors.transparent,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("新建"),
+                  SizedBox(
+                    width: 2,
+                  ),
+                  Icon(
+                    Icons.add_box_sharp,
+                    color: Get.theme.highlightColor,
+                  )
+                ],
+              ),
             ),
           ),
           SizedBox(
@@ -238,18 +249,21 @@ class Mine extends StatelessWidget {
           GestureDetector(
             onTap: () {
               Get.to(() => AuthPage(
-                child: MyPlaylistPage(),
-              ));
+                    child: MyPlaylistPage(),
+                  ));
             },
-            child: Row(
-              children: [
-                Text("更多"),
-                Icon(
-                  Icons.arrow_forward_ios_sharp,
-                  size: 12,
-                  color: Get.theme.highlightColor,
-                )
-              ],
+            child: Container(
+              color: Colors.transparent,
+              child: Row(
+                children: [
+                  Text("更多"),
+                  Icon(
+                    Icons.arrow_forward_ios_sharp,
+                    size: 12,
+                    color: Get.theme.highlightColor,
+                  )
+                ],
+              ),
             ),
           )
         ],
@@ -266,8 +280,10 @@ class Mine extends StatelessWidget {
       ));
     });
     return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8),
       child: SingleChildScrollView(
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: widgets,
         ),
         scrollDirection: Axis.horizontal,
@@ -288,24 +304,27 @@ class Mine extends StatelessWidget {
     return GestureDetector(
       onTap: () =>
           Get.to(() => MyPlaylistDetailPage(), arguments: {'id': playlist.id}),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            child: pic,
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Get.theme.backgroundColor),
-          ),
-          SizedBox(
-            height: 2,
-          ),
-          Text("${playlist.name}")
-        ],
+      child: Container(
+        width: 120,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 120,
+              child: pic,
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Get.theme.backgroundColor),
+            ),
+            SizedBox(
+              height: 2,
+            ),
+            Text("${playlist.name}",
+                maxLines: 2, overflow: TextOverflow.ellipsis)
+          ],
+        ),
       ),
     );
   }

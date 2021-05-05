@@ -44,7 +44,13 @@ class FavoritesPage extends StatelessWidget {
                       },
                     ));
               },
-              child: Icon(Icons.add),
+              child: Container(
+                color: Colors.transparent,
+                child: Icon(Icons.add),
+              ),
+            ),
+            SizedBox(
+              width: 15,
             )
           ],
         ),

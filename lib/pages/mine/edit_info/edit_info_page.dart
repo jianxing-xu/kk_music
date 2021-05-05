@@ -20,8 +20,10 @@ class EditInfoPage extends StatelessWidget {
             ? NetworkImage("${user.avatar}")
             : AssetImage("assets/images/album.png");
         return ListView(
+          padding: EdgeInsets.symmetric(horizontal: 15),
           children: [
             ListTile(
+                contentPadding: EdgeInsets.zero,
                 onTap: () {
                   Fluttertoast.showToast(
                       msg: "敬请期待!", backgroundColor: Get.theme.hintColor);
@@ -46,6 +48,7 @@ class EditInfoPage extends StatelessWidget {
                   ),
                 )),
             ListTile(
+              contentPadding: EdgeInsets.zero,
               onTap: () => Get.to(EditUsername(),
                   arguments: {'name': "${user?.username ?? ''}"}),
               leading: Text("昵称"),

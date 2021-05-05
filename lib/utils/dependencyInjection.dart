@@ -14,9 +14,12 @@ class DependencyInjection {
     await Get.putAsync(() => GetStorageBox().init());
 
     await DioConfig.init();
+
+    Get.put(UserService());
+
     // dio_client
     Get.put(DioClient());
-    Get.put(UserService());
+
     // 播放器状态
     Get.put<PlayerService>(PlayerService());
     // 全局状态

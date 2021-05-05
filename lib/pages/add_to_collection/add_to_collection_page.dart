@@ -75,9 +75,11 @@ typedef HandleAction = Future<bool> Function(List<Song> value);
 
 class AddToCollectionPage extends StatelessWidget {
   final HandleAction action;
+
   AddToCollectionPage({this.action});
 
   final controller = Get.put(AddToCollectionPageController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,7 +122,10 @@ class AddToCollectionPage extends StatelessWidget {
                       },
                       child: Text("完成"),
                     )
-                  : SizedBox())
+                  : SizedBox()),
+              SizedBox(
+                width: 12,
+              )
             ],
           ),
         ),

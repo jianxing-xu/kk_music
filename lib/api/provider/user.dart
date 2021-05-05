@@ -1,7 +1,6 @@
 import 'package:flutter_make_music/api/app_response.dart';
 import 'package:flutter_make_music/api/dio_client.dart';
 import 'package:flutter_make_music/model/song.dart';
-import 'package:flutter_make_music/model/user.dart';
 import 'package:get/get.dart';
 
 class UserApi {
@@ -94,6 +93,6 @@ class UserApi {
   }
 
   static Future<AppResponse> removeMulPlaylist(String ids) {
-    return client.reqUsr("/playlist/removeMul/$ids",method: "POST");
+    return client.reqUsr("/playlist/removeMul/$ids", method: "POST");
   }
 }

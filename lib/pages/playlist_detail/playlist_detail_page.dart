@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_make_music/model/play_list.dart';
 import 'package:flutter_make_music/pages/playlist_detail/controller.dart';
 import 'package:flutter_make_music/routes/app_pages.dart';
 import 'package:flutter_make_music/services/player_service.dart';

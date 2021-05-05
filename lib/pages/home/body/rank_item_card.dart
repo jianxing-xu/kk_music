@@ -17,7 +17,6 @@ class RankItemCardWidget extends StatelessWidget {
     List<Widget> songList = [];
     songList.add(Container(
       padding: EdgeInsets.only(top: 8, bottom: 6),
-      // TODO: 需要给高度
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -37,7 +36,7 @@ class RankItemCardWidget extends StatelessWidget {
       songList.add(Container(
         margin: EdgeInsets.only(bottom: j == rankItem.list.length ? 0 : 12),
         child: Text(
-          "${j+1}. ${song.name} - ${song.artistName}",
+          "${j + 1}. ${song.name} - ${song.artistName}",
           style: TextStyle(fontSize: 10, color: Get.theme.hoverColor),
           overflow: TextOverflow.ellipsis,
         ),

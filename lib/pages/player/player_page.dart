@@ -196,6 +196,9 @@ class Player extends StatelessWidget {
                             isFavorite ? Icons.favorite : Icons.favorite_border,
                             color: isFavorite ? Colors.red[400] : null)),
                     GestureDetector(
+                      onTap: () {
+                        Fluttertoast.showToast(msg: "敬请期待！");
+                      },
                       child: Icon(Icons.comment),
                     ),
                   ],
