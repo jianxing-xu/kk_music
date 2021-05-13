@@ -8,7 +8,7 @@
 
 
 ```
-git clone https://gitee.com/xujiangxing/flutter_kuwo_music
+git clone https://gitee.com/xujiangxing/flutter_kuwo_music.git
 
 flutter pub get
 
