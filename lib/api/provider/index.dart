@@ -4,6 +4,7 @@ import 'package:flutter_make_music/api/dio_client.dart';
 
 import 'package:get/get.dart';
 
+// 酷我接口
 abstract class Provider {
   static final client = Get.find<DioClient>();
 

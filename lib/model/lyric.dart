@@ -1,3 +1,4 @@
+// 歌词模型
 class Lyric {
   List<LyricLine> lyrics;
 
